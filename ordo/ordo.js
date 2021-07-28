@@ -41,7 +41,11 @@ define([
 	makeOutputButton();
 	showSolutionButton();
 	editMetadataButtons();
-	ordoEditFeedbackToggle();
+
+	/* In source view, enable mode toggle. In release view (feedback-only), omit it. */
+	if (params.source) {
+	    ordoEditFeedbackToggle();
+	}
 
     };
 
