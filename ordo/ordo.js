@@ -29,6 +29,21 @@ define([
 		}
 	};
 
+    var executePython = function(python) {
+	console.log("define: ", python);
+
+	return (new Promise((resolve, reject) => {
+	    console.log("1. executePython: " + python);
+	    Jupyter.notebook.kernel.execute(python, {
+		iopub: { output: (msg) => {
+		    console.log("CALLBACK: " + solutionToString(msg.content.data));
+		    resolve(msg.content.data)
+		}}}, { silent: false });
+	})).then((result) => { console.log("2. executePython" + result); return result; });
+    }
+
+
+
 	/**
 	 *  Capture output_appended.OutputArea event for the result value
 	 *  Capture finished_execute.CodeCell event for the data value
@@ -49,11 +64,25 @@ define([
 				if (solution != undefined) {
 					if (html.parent().parent().children().toArray().length == 1) {
 						if(obj.cell.metadata.ordo_verify == undefined) {
-							feedback = ordoFeedbackMessage(equals(solution,obj.cell.output_area.outputs[0].data),
+						    if(solution['python'] != undefined) {
+							console.log("executePython AWAIT " + solution);
+
+							solution = await executePython(solution["python"]).then((result) => { console.log("3. executePython" + result); return result })
+
+						    } 
+						    console.log("executePython SOL xxxxx: " + solution);
+						feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
 																  obj.cell.metadata.ordo_success, 
 																  obj.cell.metadata.ordo_failure);
 						} else {
-							feedback = obj.cell.metadata.ordo_verify(obj.cell.output_area.outputs[0].data, 
+						    if(solution['python'] != undefined) {
+							console.log("executePython AWAIT " + solution);
+							
+							solution = await executePython(solution["python"]).then((result) => console.log("3. executePython2" + result))
+						    } 
+						    
+						    console.log("executePython SOL 2 " + solution);
+						    feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
 																	 obj.cell.metadata.ordo_success, 
 																	 obj.cell.metadata.ordo_failure);
 						}
@@ -195,6 +224,9 @@ define([
 					return solution[key];
 					break;
 				case 'text/plain':
+					return solution[key];
+					break;
+				case 'python':
 					return solution[key];
 					break;
 				default:
@@ -490,7 +522,8 @@ define([
 			'image/png',
 			'image/jpeg',
 			'application/javascript',
-			'application/pdf'
+			'application/pdf',
+			'python'
 		]
 		
 		$sel = $('<select />', {
