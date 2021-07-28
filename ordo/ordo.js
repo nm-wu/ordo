@@ -17,12 +17,15 @@ define([
 
     var params = {
         defaultSuccess : "",
-	defaultFailure : ""
+	defaultFailure : "",
+	source         : false
     };
     
     var initialize = function () {
 
-        $.extend(true, params, Jupyter.notebook.config.ordo);
+        $.extend(true, params, Jupyter.notebook.config.data.ordo);
+
+	console.log(params);
 
 	readConfig();
 
