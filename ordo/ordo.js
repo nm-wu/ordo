@@ -16,9 +16,9 @@ define([
     var defaultFailure = "";
 
     var params = {
-        defaultSuccess : "",
-	defaultFailure : "",
-	source         : false
+        defaultSuccess     : "",
+	defaultFailure     : "",
+	enableModeToggle   : true
     };
     
     var initialize = function () {
@@ -42,8 +42,7 @@ define([
 	showSolutionButton();
 	editMetadataButtons();
 
-	/* In source view, enable mode toggle. In release view (feedback-only), omit it. */
-	if (params.source) {
+	if (params.enableModeToggle) {
 	    ordoEditFeedbackToggle();
 	}
 
