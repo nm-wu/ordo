@@ -573,7 +573,13 @@ define([
 			)
 		)
 
-		return inputArea;
+	    solution = Jupyter.notebook.get_selected_cell().metadata.ordo_solution;
+	    console.log(solution);
+	    if (solution != undefined) {
+	        $('#solution_text_area', inputArea).val(solutionToString(solution));
+	    }
+	    
+	    return inputArea;
 	}
 
 	var ordo_exts = function() {
