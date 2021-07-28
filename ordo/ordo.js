@@ -9,9 +9,38 @@ define([
 	events,
 	dialog
 ) {
-	console.log("...Ordo loaded... grading capabilities initiated");
-	var defaultSuccess = "";
-	var defaultFailure = "";
+
+    console.log("...Ordo loaded... grading capabilities initiated");
+
+    var defaultSuccess = "";
+    var defaultFailure = "";
+
+    var params = {
+        defaultSuccess : "",
+	defaultFailure : ""
+    };
+    
+    var initialize = function () {
+
+        $.extend(true, params, Jupyter.notebook.config.ordo);
+
+	readConfig();
+
+        $('<link/>')
+            .attr({
+                rel: 'stylesheet',
+                type: 'text/css',
+                href: requirejs.toUrl('./ordo.css')
+            })
+            .appendTo('head');
+	
+	ordoFeedback();
+	makeOutputButton();
+	showSolutionButton();
+	editMetadataButtons();
+	ordoEditFeedbackToggle();
+
+    };
 
 	/**
 	 * reads configuration properties containing default feedback responses for the plugin
@@ -583,12 +612,7 @@ define([
 	}
 
 	var ordo_exts = function() {
-		readConfig();
-		ordoFeedback();
-		makeOutputButton();
-		showSolutionButton();
-		editMetadataButtons();
-		ordoEditFeedbackToggle();
+	    return Jupyter.notebook.config.loaded.then(initialize);
 	}
 	return {
 		load_ipython_extension: ordo_exts
