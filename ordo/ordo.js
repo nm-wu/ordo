@@ -58,11 +58,21 @@ define([
 	 *        append the failure message
 	 */
 	var ordoFeedback = function () {
-		events.on('output_appended.OutputArea', function(event,type,result,md,html) {
-			events.on('finished_execute.CodeCell', function(evt, obj){
-				solution = obj.cell.metadata.ordo_solution;
-				if (solution != undefined) {
-					if (html.parent().parent().children().toArray().length == 1) {
+	    events.on('output_appended.OutputArea', function(event,type,result,md,html) {
+		console.log(">>>> output_appended.OutputArea");
+		events.on('finished_execute.CodeCell', async function(evt, obj) {
+		    console.log(">>>>finished_execute.CodeCell");
+		    console.log(obj.cell);
+			    outputs = obj.cell.output_area.outputs;
+			    solution = obj.cell.metadata.ordo_solution;
+			    console.log(outputs[outputs.length-1].data);
+
+		    if (solution != undefined) {
+			console.log("ordo feedback ?");
+			console.log(html.parent().parent()[0]);
+			console.log($('div.ordo_feedback', html.parent().parent()[0]))
+			console.log($('div.ordo_feedback'))
+					if (html.parent().parent().children().toArray().length == 2) {
 						if(obj.cell.metadata.ordo_verify == undefined) {
 						    if(solution['python'] != undefined) {
 							console.log("executePython AWAIT " + solution);
@@ -93,6 +103,10 @@ define([
 							},
 							"metadata" : {}
 						});
+					    console.log("ordo_feedback: Appended!!!")
+					    console.log($('div.ordo_feedback'))
+					} else {
+					    console.log("Hä?")
 					}
 				}
 			});
