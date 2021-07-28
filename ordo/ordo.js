@@ -25,7 +25,7 @@ define([
 
         $.extend(true, params, Jupyter.notebook.config.data.ordo);
 
-	console.log(params);
+	console.debug(params);
 
 	readConfig();
 
@@ -56,26 +56,26 @@ define([
 		var config = Jupyter.notebook.config;
 
 		if (config.data.hasOwnProperty('ordo_default_failure')){
-			console.log("Found: ordo_default_failure property")
+			console.debug("Found: ordo_default_failure property")
 			defaultFailure = config.data['ordo_default_failure'];
 		}
 		if (config.data.hasOwnProperty('ordo_default_success')){
-			console.log("Found: ordo_default_success")
+			console.debug("Found: ordo_default_success")
 			defaultSuccess = config.data['ordo_default_success'];
 		}
 	};
 
     var executePython = function(python) {
-	console.log("define: ", python);
+	console.debug("define: ", python);
 
 	return (new Promise((resolve, reject) => {
-	    console.log("1. executePython: " + python);
+	    console.debug("1. executePython: " + python);
 	    Jupyter.notebook.kernel.execute(python, {
 		iopub: { output: (msg) => {
-		    console.log("CALLBACK: " + solutionToString(msg.content.data));
+		    console.debug("CALLBACK: " + solutionToString(msg.content.data));
 		    resolve(msg.content.data)
 		}}}, { silent: false });
-	})).then((result) => { console.log("2. executePython" + result); return result; });
+	})).then((result) => { console.debug("2. executePython" + result); return result; });
     }
 
 
@@ -95,39 +95,39 @@ define([
 	 */
 	var ordoFeedback = function () {
 	    events.on('output_appended.OutputArea', function(event,type,result,md,html) {
-		console.log(">>>> output_appended.OutputArea");
+		console.debug(">>>> output_appended.OutputArea");
 		events.on('finished_execute.CodeCell', async function(evt, obj) {
-		    console.log(">>>>finished_execute.CodeCell");
-		    console.log(obj.cell);
+		    console.debug(">>>>finished_execute.CodeCell");
+		    console.debug(obj.cell);
 			    outputs = obj.cell.output_area.outputs;
 			    solution = obj.cell.metadata.ordo_solution;
-			    console.log(outputs[outputs.length-1].data);
+			    console.debug(outputs[outputs.length-1].data);
 
 		    if (solution != undefined) {
-			console.log("ordo feedback ?");
-			console.log(html.parent().parent()[0]);
-			console.log($('div.ordo_feedback', html.parent().parent()[0]))
-			console.log($('div.ordo_feedback'))
+			console.debug("ordo feedback ?");
+			console.debug(html.parent().parent()[0]);
+			console.debug($('div.ordo_feedback', html.parent().parent()[0]))
+			console.debug($('div.ordo_feedback'))
 					if (html.parent().parent().children().toArray().length == 2) {
 						if(obj.cell.metadata.ordo_verify == undefined) {
 						    if(solution['python'] != undefined) {
-							console.log("executePython AWAIT " + solution);
+							console.debug("executePython AWAIT " + solution);
 
-							solution = await executePython(solution["python"]).then((result) => { console.log("3. executePython" + result); return result })
+							solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython" + result); return result })
 
 						    } 
-						    console.log("executePython SOL xxxxx: " + solution);
+						    console.debug("executePython SOL xxxxx: " + solution);
 						feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
 																  obj.cell.metadata.ordo_success, 
 																  obj.cell.metadata.ordo_failure);
 						} else {
 						    if(solution['python'] != undefined) {
-							console.log("executePython AWAIT " + solution);
+							console.debug("executePython AWAIT " + solution);
 							
-							solution = await executePython(solution["python"]).then((result) => console.log("3. executePython2" + result))
+							solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
 						    } 
 						    
-						    console.log("executePython SOL 2 " + solution);
+						    console.debug("executePython SOL 2 " + solution);
 						    feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
 																	 obj.cell.metadata.ordo_success, 
 																	 obj.cell.metadata.ordo_failure);
@@ -139,10 +139,10 @@ define([
 							},
 							"metadata" : {}
 						});
-					    console.log("ordo_feedback: Appended!!!")
-					    console.log($('div.ordo_feedback'))
+					    console.debug("ordo_feedback: Appended!!!")
+					    console.debug($('div.ordo_feedback'))
 					} else {
-					    console.log("Hä?")
+					    console.debug("Hä?")
 					}
 				}
 			});
@@ -251,7 +251,7 @@ define([
 							.first()
 							.append("<button type='button' class='btn btn-primary make-ordo-solution'>make solution</button>");
 							$(".make-ordo-solution").on("click", function() {
-								console.log("updated metadata");
+								console.debug("updated metadata");
 								currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
 							});
 						}
@@ -267,7 +267,7 @@ define([
 	 */
 	var solutionToString = function (solution) {
 		var outStr = "";
-		console.log(solution)	
+		console.debug(solution)	
 		for (var key in solution) {
 			switch (key){
 				case 'text/html':
@@ -310,7 +310,7 @@ define([
 							$(".show-ordo-solution").on("click", function() {
 								//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
 								solution = solutionToString(currCell.metadata.ordo_solution)
-								console.log("Current solution => " + solution);
+								console.debug("Current solution => " + solution);
 								feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
 												   "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
 												   "<stron> Solution is: </strong>" + solution  + " </div>"
@@ -341,7 +341,7 @@ define([
 						if(cells[i].output_area.outputs.length > 0) {
 							if(cells[i].output_area.outputs[0].output_type == "execute_result") {
 								cells[i].metadata.ordo_solution = cells[i].output_area.outputs[0].data
-								console.log("updated metadata");
+								console.debug("updated metadata");
 							}
 						}
 					}
@@ -610,7 +610,7 @@ define([
 		)
 
 	    solution = Jupyter.notebook.get_selected_cell().metadata.ordo_solution;
-	    console.log(solution);
+	    console.debug(solution);
 	    if (solution != undefined) {
 	        $('#solution_text_area', inputArea).val(solutionToString(solution));
 	    }
