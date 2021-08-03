@@ -55,10 +55,10 @@ define([
 	}
 
 
-	CellToolbar.register_callback('create_tutorial.admonition_type', createAdmonitionButton);
+	CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
 
         var preset = [
-            'create_tutorial.admonition_type'
+            'create_tutorial.toolbar'
         ];
 	
         CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
@@ -106,10 +106,33 @@ define([
 	}
     }
 
-    var createAdmonitionButton = function (div, cell, celltoolbar) {
+    var createCellToolbar = function (div, cell, celltoolbar) {
 
 	var localDiv = $('<div />').addClass('ordo-celltoolbar');
-        var adm = $('<button />');
+
+	/* Authoring */
+
+	if (cell.cell_type === null) {
+	    events.on('create.Cell', (event, data) => {
+		events.off(event);
+		createCellToolbar(div, cell, celltoolbar)
+	    });
+	} else {
+
+	    if (cell.cell_type === 'code') {
+		var editSolBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit solutions').click((evt) => onEditSol(cell));
+		var editSuccBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit success message').click((evt) => onEditSuccMsg(cell));
+		var editFailBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit failure message').click((evt) => onEditFailMsg(cell));;
+		var authGrp = $('<div/>').addClass('btn-group').
+		    attr('role', 'group').
+		    attr('aria-label', 'Buttons for authoring cell solutions');
+		authGrp.append(editSolBtn).append(editSuccBtn).append(editFailBtn);
+		localDiv.append(authGrp);
+	    }
+
+
+	/* Admonition */
+	var adm = $('<button />');
 
 	adm.addClass('btn btn-sm btn-secondary').attr('data-toggle', 'button').attr('aria-pressed', false)
 	    .text('Make admonition');
@@ -138,7 +161,8 @@ define([
 	    
 	});
 
-        $(div).append(localDiv.append(adm));
+            $(div).append(localDiv.append(adm));
+	}
     };
 
     var initializeCells = function() {
@@ -204,37 +228,36 @@ define([
 	    events.on('output_appended.OutputArea', function(event,type,result,md,html) {
 		console.debug(">>>> output_appended.OutputArea");
 		events.on('finished_execute.CodeCell', async function(evt, obj) {
+		    //events.off(evt);
 		    console.debug(">>>>finished_execute.CodeCell");
 		    console.debug(obj.cell);
 			    outputs = obj.cell.output_area.outputs;
 			    solution = obj.cell.metadata.ordo_solution;
 			    console.debug(outputs[outputs.length-1].data);
 
-		    if (solution != undefined) {
+		    if (solution !== undefined) {
 			console.debug("ordo feedback ?");
-			console.debug(html.parent().parent()[0]);
-			console.debug($('div.ordo_feedback', html.parent().parent()[0]))
-			console.debug($('div.ordo_feedback'))
-					if (html.parent().parent().children().toArray().length == 2) {
+			console.debug(html.parent().parent().children());
+					if (html.parent().parent().children().toArray().length >= 1) {
 						if(obj.cell.metadata.ordo_verify == undefined) {
 						    if(solution['python'] != undefined) {
-							console.debug("executePython AWAIT " + solution);
+							console.debug("executePython AWAIT ", solution);
 
 							solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython" + result); return result })
 
 						    } 
-						    console.debug("executePython SOL xxxxx: " + solution);
+						    console.debug("executePython SOL xxxxx: ", solution, outputs, outputs.length-1);
 						feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
 																  obj.cell.metadata.ordo_success, 
 																  obj.cell.metadata.ordo_failure);
 						} else {
 						    if(solution['python'] != undefined) {
-							console.debug("executePython AWAIT " + solution);
+							console.debug("executePython AWAIT ",  solution);
 							
 							solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
 						    } 
 						    
-						    console.debug("executePython SOL 2 " + solution);
+						    console.debug("executePython SOL 2 ", solution);
 						    feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
 																	 obj.cell.metadata.ordo_success, 
 																	 obj.cell.metadata.ordo_failure);
@@ -514,93 +537,100 @@ define([
 		$("[data-jupyter-action*='feedbackToggle']").addClass('active');
 	}
 
-	/**
-	 * creates the buttons and handles the functionality related to editing a solution
-	 */
-	var editMetadataButtons = function() {
-		var currCell = undefined;
-		events.on('select.Cell', function(event, data) {
-			newCell = data.cell;
-			if(newCell == currCell){
-				return;
-			} else if($('.ordo_edit_mode').length == 0) {
-				return;
-			} else {
-				$(".ordo-user-input").remove();
-				currCell = newCell;
-				if(currCell.cell_type == "code") {
-					$(".selected > .output_wrapper .output").append(ordoEditButtons);
-					$(".ordo-add-solution").on('click', function(event) {
-						dialog.modal({
-							'title': 'Add Solution',
-							'body': makeSolutionInputArea(),
-							'buttons': {
-								'Cancel': {},
-								'Save New Solution': {
-									'id': 'save-solution-btn',
-									'class': 'btn-primary',
-									'click': function() {
-										sol = {}
-										sol[$('#output_type').val()] = $('#solution_text_area').val()
-										Jupyter.notebook.get_selected_cell().metadata.ordo_solution = sol
-									}
-								},
-							},
-							'keyboard_manager': Jupyter.notebook.keyboard_manager,
-							'notebook': Jupyter.notebook
-						})
-					});
-					$(".ordo-add-success-msg").on('click', function(event) {
-						dialog.modal({
-							'title': 'Add Success Message',
-							'body': makeMessageInputArea(),
-							'buttons': {
-								'Cancel': {},
-								'Save New Message': {
-									'id': 'save-success-msg-btn',
-									'class': 'btn-primary',
-									'click': function() {
-										if($('#styling').val() == "bold") {
-											sol = "<b>" + $('#message_text_area').val() + "</b>"
-										} else {
-											sol = $('#message_text_area').val() 
-										}
-										Jupyter.notebook.get_selected_cell().metadata.ordo_success = sol
-									}
-								},
-							},
-							'keyboard_manager': Jupyter.notebook.keyboard_manager,
-							'notebook': Jupyter.notebook
-						})
-					});
-					$(".ordo-add-failure-msg").on('click', function(event) {
-						dialog.modal({
-							'title': 'Add Failure Message',
-							'body': makeMessageInputArea(),
-							'buttons': {
-								'Cancel': {},
-								'Save New Message': {
-									'id': 'save-failure-msg-btn',
-									'class': 'btn-primary',
-									'click': function() {
-										if($('#styling').val() == "bold") {
-											sol = "<b>" + $('#message_text_area').val() + "</b>"
-										} else {
-											sol = $('#message_text_area').val() 
-										}
-										Jupyter.notebook.get_selected_cell().metadata.ordo_failure = sol
-									}
-								},
-							},
-							'keyboard_manager': Jupyter.notebook.keyboard_manager,
-							'notebook': Jupyter.notebook
-						})
-					});
-				}
-			}
-		}); 
-	}
+    var onEditSol = function(cell) {
+	dialog.modal({
+	    'title': 'Edit Solutions',
+	    'body': makeSolutionInputArea(cell),
+	    'buttons': {
+		'Cancel': {},
+		'Save New Solution': {
+		    'id': 'save-solution-btn',
+		    'class': 'btn-primary',
+		    'click': function() {
+			sol = {}
+			sol[$('#output_type').val()] = $('#solution_text_area').val()
+			cell.metadata.ordo_solution = sol
+		    }
+		},
+	    },
+	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
+	    'notebook': Jupyter.notebook
+	})
+    };
 
+    var onEditSuccMsg = function(cell) {
+	dialog.modal({
+	    'title': 'Edit Success Messages',
+	    'body': makeMessageInputArea(cell),
+	    'buttons': {
+		'Cancel': {},
+		'Save New Message': {
+		    'id': 'save-success-msg-btn',
+		    'class': 'btn-primary',
+		    'click': function() {
+			if($('#styling').val() == "bold") {
+			    sol = "<b>" + $('#message_text_area').val() + "</b>"
+			} else {
+			    sol = $('#message_text_area').val() 
+			}
+			cell.metadata.ordo_success = sol
+		    }
+		},
+	    },
+	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
+	    'notebook': Jupyter.notebook
+	})
+    };
+
+    var onEditFailMsg = function(cell) {
+	dialog.modal({
+	    'title': 'Edit Failure Message',
+	    'body': makeMessageInputArea(cell),
+	    'buttons': {
+		'Cancel': {},
+		'Save New Message': {
+		    'id': 'save-failure-msg-btn',
+		    'class': 'btn-primary',
+		    'click': function() {
+			if($('#styling').val() == "bold") {
+			    sol = "<b>" + $('#message_text_area').val() + "</b>"
+			} else {
+			    sol = $('#message_text_area').val() 
+			}
+			cell.metadata.ordo_failure = sol
+		    }
+		},
+	    },
+	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
+	    'notebook': Jupyter.notebook
+	})
+    }
+    
+    
+    /**
+     * creates the buttons and handles the functionality related to editing a solution
+     */
+    var editMetadataButtons = function() {
+	var currCell = undefined;
+	events.on('select.Cell', function(event, data) {
+	    newCell = data.cell;
+	    if(newCell == currCell){
+		return;
+	    } else if($('.ordo_edit_mode').length == 0) {
+		return;
+	    } else {
+		$(".ordo-user-input").remove();
+		currCell = newCell;
+		if(currCell.cell_type == "code") {
+		    $(".selected > .output_wrapper .output").append(ordoEditButtons);
+		    $(".ordo-add-solution").on('click', (evt) => onEditSol(currCell));
+		    $(".ordo-add-success-msg").on('click', (evt) => onEditSuccMsg(currCell));
+		    $(".ordo-add-failure-msg").on('click', (evt) => onFailureSuccMsg(currCell));
+		}
+	    }
+	}); 
+    }
+    
 	/**
 	 * html for the feedback buttons on a cell
 	 */
@@ -669,7 +699,7 @@ define([
 	/**
 	 * html for the input form to create a solution
 	 */
-	var makeSolutionInputArea = function() {
+	var makeSolutionInputArea = function(cell) {
 		var output_types = [
 			'text/plain',
 			'text/html',
@@ -716,9 +746,9 @@ define([
 			)
 		)
 
-	    solution = Jupyter.notebook.get_selected_cell().metadata.ordo_solution;
+	    solution = cell.metadata.ordo_solution;
 	    console.debug(solution);
-	    if (solution != undefined) {
+	    if (solution !== undefined) {
 	        $('#solution_text_area', inputArea).val(solutionToString(solution));
 	    }
 	    
