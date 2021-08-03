@@ -1,17 +1,23 @@
 define([
-	'jquery',
-	'base/js/namespace',
-	'base/js/events',
-	'base/js/dialog'
+    'require',
+    'jquery',
+    'base/js/namespace',
+    'base/js/events',
+    'base/js/dialog',
+    'notebook/js/celltoolbar'
 ],  function(
-	$,
-	Jupyter,
-	events,
-	dialog
+    require,
+    $,
+    Jupyter,
+    events,
+    dialog,
+    celltoolbar
 ) {
 
     console.debug("...Ordo loaded... grading capabilities initiated");
 
+    var CellToolbar = celltoolbar.CellToolbar;
+    
     var defaultSuccess = "";
     var defaultFailure = "";
 
@@ -22,20 +28,22 @@ define([
     };
     
     var initialize = function () {
-
-        $.extend(true, params, Jupyter.notebook.config.data.ordo);
-
-	console.debug(params);
-
-	readConfig();
-
+	
         $('<link/>')
             .attr({
                 rel: 'stylesheet',
                 type: 'text/css',
-                href: requirejs.toUrl('./ordo.css')
+                href: require.toUrl('./ordo.css')
             })
             .appendTo('head');
+
+	events.on("notebook_loaded.Notebook", function() {
+	    initializeCells()
+	});
+        if (Jupyter.notebook !== undefined && Jupyter.notebook._fully_loaded) {
+            initializeCells();
+        }
+	
 	
 	ordoFeedback();
 	makeOutputButton();
@@ -46,24 +54,124 @@ define([
 	    ordoEditFeedbackToggle();
 	}
 
+
+	CellToolbar.register_callback('create_tutorial.admonition_type', createAdmonitionButton);
+
+        var preset = [
+            'create_tutorial.admonition_type'
+        ];
+	
+        CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
+	
+	/* events.on('rendered.MarkdownCell', function(event, data) {
+	    console.debug("<<<EVENT>>> command_mode.Cell");
+	    console.debug(event);
+	    console.debug(data);
+	    handleAdmonition(data.cell);
+	});*/
+
     };
 
-	/**
-	 * reads configuration properties containing default feedback responses for the plugin
-	 */
-	var readConfig = function() {
-		var config = Jupyter.notebook.config;
-
-		if (config.data.hasOwnProperty('ordo_default_failure')){
-			console.debug("Found: ordo_default_failure property")
-			defaultFailure = config.data['ordo_default_failure'];
+    var toggleOpenButton = function(cell) {
+	console.debug("toggleOpenButton");
+	console.debug(cell);
+	if (cell.metadata.ordo !== undefined &&
+	    cell.metadata.ordo.admonition !== undefined &&
+	    cell.metadata.ordo.admonition) {
+	    var localDiv = $('<div />').addClass("text-center").addClass('ordo-admonition-controls');
+            var btn = $('<button />');
+	    btn.addClass('btn btn-sm btn-primary ordo-admonition-btn').attr('data-toggle', 'button').text('Open');
+	    
+	    if (params.enableModeToggle) {
+		btn.addClass('active').attr('aria-pressed', true);
+		cell.element.show();
+	    } else {
+		btn.attr('aria-pressed', false)
+		cell.element.hide();
+	    }
+	    
+	    btn.click(function() {
+		if ($(this).hasClass('active')) {
+		    console.debug("Close ...");
+		    cell.element.hide();
+		} else {
+		    cell.element.show();
 		}
-		if (config.data.hasOwnProperty('ordo_default_success')){
-			console.debug("Found: ordo_default_success")
-			defaultSuccess = config.data['ordo_default_success'];
-		}
-	};
+		console.debug($(this));
+	    });
+	    
+	    localDiv.append(btn).insertBefore(cell.element);
+	} else {
+	    cell.element.prev('div.ordo-admonition-controls').remove();
+	}
+    }
 
+    var createAdmonitionButton = function (div, cell, celltoolbar) {
+
+	var localDiv = $('<div />').addClass('ordo-celltoolbar');
+        var adm = $('<button />');
+
+	adm.addClass('btn btn-sm btn-secondary').attr('data-toggle', 'button').attr('aria-pressed', false)
+	    .text('Make admonition');
+
+	if (cell.metadata.ordo !== undefined &&
+	    cell.metadata.ordo.admonition !== undefined &&
+	    cell.metadata.ordo.admonition) {
+	    adm.addClass('active').attr('aria-pressed', true);
+	}
+     
+        adm.click(() => {
+	    
+	    if (cell.metadata.ordo === undefined) {
+		cell.metadata.ordo = {};
+	    }
+	    
+	    if (cell.metadata.ordo.admonition === undefined) {
+		cell.metadata.ordo.admonition = true;
+		cell.element.addClass('ordo-admonition-on');
+	    } else {
+		delete cell.metadata.ordo.admonition;
+		cell.element.removeClass('ordo-admonition-on');
+	    }
+
+	    toggleOpenButton(cell);
+	    
+	});
+
+        $(div).append(localDiv.append(adm));
+    };
+
+    var initializeCells = function() {
+	console.log(Jupyter.notebook.get_cells());
+	Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
+	    console.debug("initializeCells");
+	    console.debug(cell.metadata);
+	    toggleOpenButton(cell);
+	});
+    }
+
+    var handleAdmonition = function(cell) {
+	var tags = cell.metadata.tags || [];
+	console.debug(tags);
+	if (tags.includes('toggle')) {
+	    console.debug("<<<handleAdmonition>>>");
+	}
+    };
+
+    /**
+     * reads configuration properties containing default feedback responses for the plugin
+     */
+    var readConfig = function() {
+	
+	$.extend(true, params, Jupyter.notebook.config.data.ordo);
+	console.debug(params);
+
+	/* FIXME: for the time being, set old variables */
+	defaultFailure = params['defaultFailure'];
+	defaultSuccess = params['defaultSuccess'];
+	
+    };
+    
     var executePython = function(python) {
 	console.debug("define: ", python);
 
@@ -617,10 +725,12 @@ define([
 	    return inputArea;
 	}
 
-	var ordo_exts = function() {
-	    return Jupyter.notebook.config.loaded.then(initialize);
-	}
-	return {
-		load_ipython_extension: ordo_exts
-	}
+    var ordo_exts = function() {
+	return Jupyter.notebook.config.loaded.then(readConfig).then(initialize).catch(function on_error (reason) {
+            console.error('Error:', reason);
+        });
+    }
+    return {
+	load_ipython_extension: ordo_exts
+    }
 });
