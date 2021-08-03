@@ -21,6 +21,104 @@ define([
     var defaultSuccess = "";
     var defaultFailure = "";
 
+    /* Taken from https://github.com/ipython-contrib/jupyter_contrib_nbextensions/issues/664 */
+
+     var all_events = [
+        'app_initialized.DashboardApp',
+        'app_initialized.NotebookApp',
+        'autosave_disabled.Notebook',
+        'autosave_enabled.Notebook',
+        'before_save.Notebook',
+        'changed',
+        'checkpoint_created.Notebook',
+        'checkpoint_delete_failed.Notebook',
+        'checkpoint_deleted.Notebook',
+        'checkpoint_failed.Notebook',
+        'checkpoint_restore_failed.Notebook',
+        'checkpoint_restored.Notebook',
+        'checkpoints_listed.Notebook',
+        'collapse_pager',
+        'command_mode.Cell',
+        'command_mode.Notebook',
+        'config_changed.Editor',
+        'create.Cell',
+        'delete.Cell',
+        'draw_notebook_list.NotebookList',
+        'edit_mode.Cell',
+        'edit_mode.Notebook',
+         'execute.CodeCell',
+	 'finished_execute.CodeCell',
+        'execution_request.Kernel',
+        'expand_pager',
+        'file_load_failed.Editor',
+        'file_loaded.Editor',
+        'file_renamed.Editor',
+        'file_saved.Editor',
+        'file_saving.Editor',
+        'input_reply.Kernel',
+        'kernel_autorestarting.Kernel',
+        'kernel_busy.Kernel',
+        'kernel_connected.Kernel',
+        'kernel_connection_dead.Kernel',
+        'kernel_connection_failed.Kernel',
+        'kernel_created.Kernel',
+        'kernel_created.Session',
+        'kernel_dead.Kernel',
+        'kernel_dead.Session',
+        'kernel_disconnected.Kernel',
+        'kernel_idle.Kernel',
+        'kernel_interrupting.Kernel',
+        'kernel_killed.Kernel',
+        'kernel_killed.Session',
+        'kernel_ready.Kernel',
+        'kernel_reconnecting.Kernel',
+        'kernel_restarting.Kernel',
+        'kernel_starting.Kernel',
+        'kernelspecs_loaded.KernelSpec',
+        'list_checkpoints_failed.Notebook',
+        'mode_changed.Editor',
+        'no_kernel.Kernel',
+        'notebook_copy_failed',
+        'notebook_deleted.NotebookList',
+        'notebook_load_failed.Notebook',
+        'notebook_loaded.Notebook',
+        'notebook_loading.Notebook',
+        'notebook_read_only.Notebook',
+        'notebook_renamed.Notebook',
+        'notebook_restoring.Notebook',
+        'notebook_save_failed.Notebook',
+        'notebook_saved.Notebook',
+        'open_with_text.Pager',
+        'output_appended.OutputArea',
+        'preset_activated.CellToolbar',
+        'preset_added.CellToolbar',
+        'rebuild.QuickHelp',
+        'received_unsolicited_message.Kernel',
+        'rendered.MarkdownCell',
+        'resize',
+        'resize-header.Page',
+        'save_status_clean.Editor',
+        'save_status_dirty.Editor',
+        'select.Cell',
+        'selected_cell_type_changed.Notebook',
+        'send_input_reply.Kernel',
+        'sessions_loaded.Dashboard',
+        'set_dirty.Notebook',
+        'set_next_input.Notebook',
+        'shell_reply.Kernel',
+        'spec_changed.Kernel',
+        'spec_match_found.Kernel',
+        'spec_not_found.Kernel',
+        'trust_changed.Notebook',
+        'unrecognized_cell.Cell',
+        'unrecognized_output.OutputArea',
+        'unregistered_preset.CellToolbar',
+    ];
+
+    events.on(all_events.join(' '), function (evt, data) {
+        console.log('[evt]', evt.type, (new Date()).toISOString(), data);
+    });
+
     var params = {
         defaultSuccess     : "",
 	defaultFailure     : "",
@@ -211,73 +309,62 @@ define([
 
 
 
-	/**
-	 *  Capture output_appended.OutputArea event for the result value
-	 *  Capture finished_execute.CodeCell event for the data value
-	 *  check for a solution in cell metadata
-	 *  if exists:
-	 *    check only one area appended (ends recursion)
-	 *    if true:
-	 *      check result against solution
-	 *      if result correct:
-	 *        append the success message
-	 *      if result incorrect:
-	 *        append the failure message
-	 */
-	var ordoFeedback = function () {
-	    events.on('output_appended.OutputArea', function(event,type,result,md,html) {
-		console.debug(">>>> output_appended.OutputArea");
-		events.on('finished_execute.CodeCell', async function(evt, obj) {
-		    //events.off(evt);
-		    console.debug(">>>>finished_execute.CodeCell");
-		    console.debug(obj.cell);
-			    outputs = obj.cell.output_area.outputs;
-			    solution = obj.cell.metadata.ordo_solution;
-			    console.debug(outputs[outputs.length-1].data);
+    /**
+     *  Capture output_appended.OutputArea event for the result value
+     *  Capture finished_execute.CodeCell event for the data value
+     *  check for a solution in cell metadata
+     *  if exists:
+     *    check only one area appended (ends recursion)
+     *    if true:
+     *      check result against solution
+     *      if result correct:
+     *        append the success message
+     *      if result incorrect:
+     *        append the failure message
+     */
+    
+    var onCodeCellExecuted = async function(evt, obj) {
+	outputs = obj.cell.output_area.outputs;
+	solution = obj.cell.metadata.ordo_solution;
+	if (solution !== undefined) {
+	    console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
 
-		    if (solution !== undefined) {
-			console.debug("ordo feedback ?");
-			console.debug(html.parent().parent().children());
-					if (html.parent().parent().children().toArray().length >= 1) {
-						if(obj.cell.metadata.ordo_verify == undefined) {
-						    if(solution['python'] != undefined) {
-							console.debug("executePython AWAIT ", solution);
-
-							solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython" + result); return result })
-
-						    } 
-						    console.debug("executePython SOL xxxxx: ", solution, outputs, outputs.length-1);
-						feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
-																  obj.cell.metadata.ordo_success, 
-																  obj.cell.metadata.ordo_failure);
-						} else {
-						    if(solution['python'] != undefined) {
-							console.debug("executePython AWAIT ",  solution);
-							
-							solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
-						    } 
-						    
-						    console.debug("executePython SOL 2 ", solution);
-						    feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
-																	 obj.cell.metadata.ordo_success, 
-																	 obj.cell.metadata.ordo_failure);
-						}
-						obj.cell.output_area.append_output({
-							"output_type" : "display_data",
-							"data" : {
-								"text/html": feedback
-							},
-							"metadata" : {}
-						});
-					    console.debug("ordo_feedback: Appended!!!")
-					    console.debug($('div.ordo_feedback'))
-					} else {
-					    console.debug("Hä?")
-					}
-				}
-			});
-		});
+	    if (obj.cell.metadata.ordo_verify == undefined) {
+		if (solution['python'] != undefined) {
+		    console.debug("executePython AWAIT ", solution);
+		    
+		    solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython" + result); return result })
+		    
+		} 
+		console.debug("executePython SOL xxxxx: ", solution, outputs, outputs[outputs.length-1]);
+		feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
+					       obj.cell.metadata.ordo_success, 
+					       obj.cell.metadata.ordo_failure);
+	    } else {
+		if(solution['python'] != undefined) {
+		    console.debug("executePython AWAIT ",  solution);
+		    
+		    solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
+		} 
+		
+		console.debug("executePython SOL 2 ", solution);
+		feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
+							 obj.cell.metadata.ordo_success, 
+							 obj.cell.metadata.ordo_failure);
+	    }
+	    obj.cell.output_area.append_output({
+		"output_type" : "display_data",
+		"data" : {
+		    "text/html": feedback
+		},
+		"metadata" : {}
+	    });
 	}
+    };
+        
+    var ordoFeedback = function () {
+	events.on('finished_execute.CodeCell', onCodeCellExecuted);
+    }
 
 	/**
 	 * returns the div containing the 
