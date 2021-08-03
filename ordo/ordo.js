@@ -10,7 +10,7 @@ define([
 	dialog
 ) {
 
-    console.log("...Ordo loaded... grading capabilities initiated");
+    console.debug("...Ordo loaded... grading capabilities initiated");
 
     var defaultSuccess = "";
     var defaultFailure = "";
