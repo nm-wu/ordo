@@ -46,8 +46,8 @@ define([
         'draw_notebook_list.NotebookList',
         'edit_mode.Cell',
         'edit_mode.Notebook',
-         'execute.CodeCell',
-	 'finished_execute.CodeCell',
+        'execute.CodeCell',
+	'finished_execute.CodeCell',
         'execution_request.Kernel',
         'expand_pager',
         'file_load_failed.Editor',
@@ -149,24 +149,19 @@ define([
 	editMetadataButtons();
 
 	if (params.enableModeToggle) {
+
+	    /* TODO: Remove toggle button, eventually */
+	    
 	    ordoEditFeedbackToggle();
+
+	    CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
+	    
+            var preset = [
+		'create_tutorial.toolbar'
+            ];
+	    
+            CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
 	}
-
-
-	CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
-
-        var preset = [
-            'create_tutorial.toolbar'
-        ];
-	
-        CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
-	
-	/* events.on('rendered.MarkdownCell', function(event, data) {
-	    console.debug("<<<EVENT>>> command_mode.Cell");
-	    console.debug(event);
-	    console.debug(data);
-	    handleAdmonition(data.cell);
-	});*/
 
     };
 
@@ -272,14 +267,6 @@ define([
 	});
     }
 
-    var handleAdmonition = function(cell) {
-	var tags = cell.metadata.tags || [];
-	console.debug(tags);
-	if (tags.includes('toggle')) {
-	    console.debug("<<<handleAdmonition>>>");
-	}
-    };
-
     /**
      * reads configuration properties containing default feedback responses for the plugin
      */
@@ -301,8 +288,12 @@ define([
 	    console.debug("1. executePython: " + python);
 	    Jupyter.notebook.kernel.execute(python, {
 		iopub: { output: (msg) => {
-		    console.debug("CALLBACK: " + solutionToString(msg.content.data));
-		    resolve(msg.content.data)
+		    console.debug("CALLBACK: ", msg);
+		    /* TODO: Fix for error cases, check for status == error etc. */
+		    if (msg.msg_type === 'execute_result') {
+			console.debug("CALLBACK (result): ", solutionToString(msg.content.data));
+			resolve(msg.content.data)
+		    }
 		}}}, { silent: false });
 	})).then((result) => { console.debug("2. executePython" + result); return result; });
     }
@@ -329,11 +320,11 @@ define([
 	if (solution !== undefined) {
 	    console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
 
-	    if (obj.cell.metadata.ordo_verify == undefined) {
-		if (solution['python'] != undefined) {
+	    if (obj.cell.metadata.ordo_verify === undefined) {
+		if (solution['python'] !== undefined) {
 		    console.debug("executePython AWAIT ", solution);
 		    
-		    solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython" + result); return result })
+		    solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
 		    
 		} 
 		console.debug("executePython SOL xxxxx: ", solution, outputs, outputs[outputs.length-1]);
@@ -488,19 +479,20 @@ define([
 		for (var key in solution) {
 			switch (key){
 				case 'text/html':
-					return solution[key];
+					outStr = solution[key];
 					break;
 				case 'text/plain':
-					return solution[key];
+					outStr = solution[key];
 					break;
 				case 'python':
-					return solution[key];
+					outStr = solution[key];
 					break;
 				default:
 					outStr = 'N/A';
 			}
 		}
-		return outStr;
+	    console.debug(outStr);
+	    return outStr;
 	}
 
 	/**
@@ -786,7 +778,11 @@ define([
 	/**
 	 * html for the input form to create a solution
 	 */
-	var makeSolutionInputArea = function(cell) {
+    var makeSolutionInputArea = function(cell) {
+
+	solution = cell.metadata.ordo_solution;
+	console.debug("makeSolutionInputArea", solution);
+	
 		var output_types = [
 			'text/plain',
 			'text/html',
@@ -805,9 +801,15 @@ define([
 			'id': "output_type",
 			'title': 'Select the output type'
 		})
-		$.each(output_types, function(index, type) {
-			$sel.append("<option>" + type + "</option>")
-		})
+	    
+	$.each(output_types, function(index, type) {
+	    opt = $("<option>" + type + "</option>");
+	    console.log(type, solution[type]);
+	    if (solution[type] !== undefined) {
+		opt.attr('selected', true);
+	    }
+	    $sel.append(opt);
+	})
 
 		var inputArea = $('<div />', {
 			'title': 'Solution Input Area'
@@ -833,8 +835,6 @@ define([
 			)
 		)
 
-	    solution = cell.metadata.ordo_solution;
-	    console.debug(solution);
 	    if (solution !== undefined) {
 	        $('#solution_text_area', inputArea).val(solutionToString(solution));
 	    }
