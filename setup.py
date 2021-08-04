@@ -10,4 +10,6 @@ setup (
 	url = 'https://github.com/nm-wu/ordo',
 	keywords = ['nbgallery', 'Jupyter', 'tutorial'],
 	package_data = {'ordo': ['ordo.js', 'ordo.css'],},
+    # jupyter-contrib-nbextensions reportedly does not like zipped eggs, disable them
+    zip_safe=False
 )
