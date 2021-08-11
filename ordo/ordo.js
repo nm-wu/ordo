@@ -173,29 +173,32 @@ define([
 	    cell.metadata.ordo.admonition) {
 	    var localDiv = $('<div />').addClass("text-center").addClass('ordo-admonition-controls');
             var btn = $('<button />');
-	    btn.addClass('btn btn-sm btn-primary ordo-admonition-btn').attr('data-toggle', 'button').text('Open');
+	    btn.addClass('btn btn-sm btn-primary ordo-admonition-btn').attr('data-toggle', 'button');
 	    
 	    if (params.enableModeToggle) {
 		btn.addClass('active').attr('aria-pressed', true);
-		cell.element.show();
+		cell.element.find('div.ordo-admonition-controls').nextAll().show();
+		btn.text('Close');
 	    } else {
 		btn.attr('aria-pressed', false)
-		cell.element.hide();
+		cell.element.find('div.ordo-admonition-controls').nextAll().hide();
+		btn.text('Open');
 	    }
 	    
 	    btn.click(function() {
 		if ($(this).hasClass('active')) {
 		    console.debug("Close ...");
-		    cell.element.hide();
+		    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
+		    $(this).text('Open');
 		} else {
-		    cell.element.show();
+		    cell.element.find('div.ordo-admonition-controls').nextAll().show()
+		    $(this).text('Close');
 		}
 		console.debug($(this));
 	    });
-	    
-	    localDiv.append(btn).insertBefore(cell.element);
+	    cell.element.prepend(localDiv.append(btn));
 	} else {
-	    cell.element.prev('div.ordo-admonition-controls').remove();
+	    cell.element.find('div.ordo-admonition-controls').remove();
 	}
     }
 

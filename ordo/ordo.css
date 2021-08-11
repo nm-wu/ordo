@@ -9,3 +9,16 @@ div.celltoolbar button {
     border: 1px solid #ccc;
 }
 
+/* Jupyter Notebook styles Markdown cells in "flex-direction: row". In
+   this context, to have ordo controls appear on top of the item
+   stack, we have to use the wrap/ 100% trick below; this does not
+   apply to code cells, as they are "flex-direction: column", anyways. 
+*/
+
+div.cell.text_cell {
+    flex-wrap: wrap;
+}
+
+div.cell.text_cell div.ordo-admonition-controls {
+    flex: 0 0 100%;
+}
