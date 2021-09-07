@@ -807,8 +807,8 @@ define([
 	    
 	$.each(output_types, function(index, type) {
 	    opt = $("<option>" + type + "</option>");
-	    console.log(type, solution[type]);
-	    if (solution[type] !== undefined) {
+	    if (solution !== undefined && solution[type] !== undefined) {
+		console.log(type, solution[type]);
 		opt.attr('selected', true);
 	    }
 	    $sel.append(opt);
