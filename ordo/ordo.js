@@ -197,18 +197,6 @@ define([
 		btn.text('Open');
 	    }
 
-	    /* btn.click(function() {
-		if ($(this).hasClass('active')) {
-		    console.debug("Close ...");
-		    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
-		    $(this).text('Open');
-		} else {
-		    cell.element.find('div.ordo-admonition-controls').nextAll().show()
-		    $(this).text('Close');
-		}
-		console.debug($(this));
-	    }); */
-	    
 	    btn.click(function() { onClickAdmonitionButton(cell,$(this)) });
 	    
 	    cell.element.prepend(localDiv.append(btn));
@@ -339,14 +327,19 @@ define([
 	    console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
 
 	    if (obj.cell.metadata.ordo_verify === undefined) {
+		var res;
 		if (solution['python'] !== undefined) {
 		    console.debug("executePython AWAIT ", solution);
 		    
-		    solution = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
+		    res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
+		    obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
+		     
 		    
-		} 
-		console.debug("executePython SOL xxxxx: ", solution, outputs, outputs[outputs.length-1]);
-		feedback = ordoFeedbackMessage(equals(solution, outputs[outputs.length-1].data),
+		} else {
+		    res = solution;
+		}
+		console.debug("executePython SOL xxxxx: ", res, outputs, outputs[outputs.length-1]);
+		feedback = ordoFeedbackMessage(equals(res, outputs[outputs.length-1].data),
 					       obj.cell.metadata.ordo_success, 
 					       obj.cell.metadata.ordo_failure);
 	    } else {
@@ -513,6 +506,31 @@ define([
 	    return outStr;
 	}
 
+    	var solutionToString = function (solution) {
+	    var outStr = "";
+	    var mimeTypes = Object.keys(solution);
+
+	    /* TODO: change to "text/x-..." later */
+	    if (mimeTypes.includes("python")) {
+		outStr = solution["python"];
+	    } else {
+		for (var mt in mimeTypes) {
+		    switch (mt) {
+		    case 'text/html':
+			outStr = solution[mt];
+			break;
+		    case 'text/plain':
+			outStr = solution[mt];
+			break;
+		    default:
+			outStr = null;
+		    }
+		}
+	    }
+	    console.debug(outStr);
+	    return outStr;
+	}
+
 	/**
 	 * 
 	 * creates a button to show the current solution to the user
@@ -528,7 +546,7 @@ define([
 			} else {
 				$(".show-ordo-solution").remove();
 				currCell = newCell;
-				if(currCell.cell_type == "code" && currCell.metadata && currCell.metadata.ordo_solution) {
+				if(currCell.cell_type === "code" && currCell.metadata && currCell.metadata.ordo_solution) {
 				    if(currCell.output_area.outputs.length > 0) {
 					console.debug("Show solution button");
 					console.debug(currCell.output_area.outputs[0].output_type);
@@ -537,11 +555,14 @@ define([
 						.after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
 					    $(".show-ordo-solution").on("click", function() {
 						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-						solution = solutionToString(currCell.metadata.ordo_solution)
+						// solution = solutionToString(currCell.metadata.ordo_solution)
+						console.debug(currCell.metadata.ordo_solution);
+						/* TODO: Improve retrieval here based on a parametric solutionToString */
+						solution = currCell.metadata.ordo_solution['text/plain']
 						console.debug("Current solution => " + solution);
 						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
 						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						    "<stron> Solution is: </strong>" + solution  + " </div>"
+						    "<stron> Expected solution is: </strong>" + solution  + " </div>"
 						currCell.output_area.append_output({
 						    "output_type" : "display_data",
 						    "data" : {
