@@ -165,6 +165,18 @@ define([
 
     };
 
+    var onClickAdmonitionButton = function(cell, btn) {
+	if (btn.hasClass('active')) {
+	    console.debug("Close ...");
+	    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
+	    btn.text('Open');
+	} else {
+	    cell.element.find('div.ordo-admonition-controls').nextAll().show()
+	    btn.text('Close');
+	}
+	console.debug(btn);
+    };
+
     var toggleOpenButton = function(cell) {
 	console.debug("toggleOpenButton");
 	console.debug(cell);
@@ -184,8 +196,8 @@ define([
 		cell.element.find('div.ordo-admonition-controls').nextAll().hide();
 		btn.text('Open');
 	    }
-	    
-	    btn.click(function() {
+
+	    /* btn.click(function() {
 		if ($(this).hasClass('active')) {
 		    console.debug("Close ...");
 		    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
@@ -195,7 +207,10 @@ define([
 		    $(this).text('Close');
 		}
 		console.debug($(this));
-	    });
+	    }); */
+	    
+	    btn.click(function() { onClickAdmonitionButton(cell,$(this)) });
+	    
 	    cell.element.prepend(localDiv.append(btn));
 	} else {
 	    cell.element.find('div.ordo-admonition-controls').remove();
@@ -614,9 +629,54 @@ define([
 		var fMprefix = 'feedbackToggle';
 		var fMaction_name = 'EnterFeedbackMode';
 		var fM_action_name = Jupyter.actions.register(fMaction, fMaction_name, fMprefix);
-		Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name])
-		$('.command_mode').addClass('ordo_feedback_mode');
-		$("[data-jupyter-action*='feedbackToggle']").addClass('active');
+
+	    /* Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name]) */
+	    		var eMaction = {
+			icon: 'fa-pencil',
+			help: 'Enter ordo-edit mode',
+			help_index: 'zy',
+			handler: editMode
+		};
+		var eMprefix = 'editModeToggle';
+		var eMaction_name = 'EnterEditMode';
+		var eM_action_name = Jupyter.actions.register(eMaction, eMaction_name, eMprefix);
+
+		var toggleAdmonitions = function() {
+		    var r = $("[data-jupyter-action*='toggleAdmonitions']").toggleClass('active');
+		    console.debug("toggleAdmonitions 'em!!!!");
+		    
+		    Jupyter.notebook.get_cells().
+			forEach(function (cell, idx, cells) {
+			    var elem;
+			    if (r.hasClass('active')) {
+				elem = cell.element.find("div.ordo-admonition-controls button.ordo-admonition-btn.active");
+			    } else {
+				elem = cell.element.find("div.ordo-admonition-controls :not(button.ordo-admonition-btn.active)");
+			    }
+			    
+			    if (elem.length > 0) {
+				onClickAdmonitionButton(cell, elem);
+				elem.toggleClass("active");
+			    }
+			});
+		};
+
+	    var admAction = {
+		icon: 'fa-window-close-o',
+		help: 'Open/ close all admonitions cells',
+		help_index: 'zz',
+		handler: toggleAdmonitions
+	    };
+
+	    var admPrefix = 'toggleAdmonitions';
+	    var admAction_name = 'OpenCloseAdmonitions';
+	    var adm_action_name = Jupyter.actions.register(admAction, admAction_name, admPrefix);
+	    
+	    Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name,adm_action_name])
+
+	    $('.command_mode').addClass('ordo_feedback_mode');
+	    $("[data-jupyter-action*='feedbackToggle']").addClass('active');
+
 	}
 
     var onEditSol = function(cell) {
