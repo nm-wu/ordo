@@ -22,3 +22,8 @@ div.cell.text_cell {
 div.cell.text_cell div.ordo-admonition-controls {
     flex: 0 0 100%;
 }
+
+button.show-ordo-solution {
+    width: 5%;
+    align: right;
+}

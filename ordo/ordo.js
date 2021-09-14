@@ -529,34 +529,35 @@ define([
 				$(".show-ordo-solution").remove();
 				currCell = newCell;
 				if(currCell.cell_type == "code" && currCell.metadata && currCell.metadata.ordo_solution) {
-					if(currCell.output_area.outputs.length > 0){
-						if(currCell.output_area.outputs[0].output_type == "execute_result") {
-							$(".selected .output_area")
-							.first()
-							.append("<button type='button' class='btn fa fa-eye show-ordo-solution'></button>");
-							$(".show-ordo-solution").on("click", function() {
-								//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-								solution = solutionToString(currCell.metadata.ordo_solution)
-								console.debug("Current solution => " + solution);
-								feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
-												   "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-												   "<stron> Solution is: </strong>" + solution  + " </div>"
-								currCell.output_area.append_output({
-									"output_type" : "display_data",
-									"data" : {
-										"text/html": feedback
-									},
-									"metadata" : {}
-								});
-							});
-						}
+				    if(currCell.output_area.outputs.length > 0) {
+					console.debug("Show solution button");
+					console.debug(currCell.output_area.outputs[0].output_type);
+					if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
+					    $(".selected .input")
+						.after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
+					    $(".show-ordo-solution").on("click", function() {
+						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
+						solution = solutionToString(currCell.metadata.ordo_solution)
+						console.debug("Current solution => " + solution);
+						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
+						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
+						    "<stron> Solution is: </strong>" + solution  + " </div>"
+						currCell.output_area.append_output({
+						    "output_type" : "display_data",
+						    "data" : {
+							"text/html": feedback
+						    },
+						    "metadata" : {}
+						});
+					    });
+					}
 					}
 				}
 			}
 		}); 
 	}
-	
-	/**
+    
+    /**
 	 * sets the solution for the current cell to be the solution for all cells in the notebook
 	 */
 	var allOutputsButton = function() {
