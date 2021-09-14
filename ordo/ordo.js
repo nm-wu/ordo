@@ -509,17 +509,18 @@ define([
     	var solutionToString = function (solution) {
 	    var outStr = "";
 	    var mimeTypes = Object.keys(solution);
-
+	    console.debug("mimeTypes", mimeTypes);
 	    /* TODO: change to "text/x-..." later */
 	    if (mimeTypes.includes("python")) {
 		outStr = solution["python"];
 	    } else {
-		for (var mt in mimeTypes) {
+		for (var mt of mimeTypes) {
+		    console.debug("mt", mt);
 		    switch (mt) {
-		    case 'text/html':
+		    case "text/html":
 			outStr = solution[mt];
 			break;
-		    case 'text/plain':
+		    case "text/plain":
 			outStr = solution[mt];
 			break;
 		    default:
@@ -557,7 +558,12 @@ define([
 						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
 						// solution = solutionToString(currCell.metadata.ordo_solution)
 						console.debug(currCell.metadata.ordo_solution);
-						/* TODO: Improve retrieval here based on a parametric solutionToString */
+
+						/* TODO: 
+						  * - Improve retrieval here based on a parametric solutionToString 
+						  * - Make sure that we escape text/plain content here, as feedback requires markup!
+						  */
+						
 						solution = currCell.metadata.ordo_solution['text/plain']
 						console.debug("Current solution => " + solution);
 						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
