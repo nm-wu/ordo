@@ -553,7 +553,7 @@ define([
 					if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
 					    $(".selected .input")
 						.after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
-					    $(".show-ordo-solution").on("click", function() {
+					    $(".show-ordo-solution").one("click", function() {
 						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
 						// solution = solutionToString(currCell.metadata.ordo_solution)
 						console.debug(currCell.metadata.ordo_solution);
