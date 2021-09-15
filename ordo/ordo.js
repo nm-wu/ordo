@@ -22,8 +22,8 @@ define([
     var defaultFailure = "";
 
     /* Taken from https://github.com/ipython-contrib/jupyter_contrib_nbextensions/issues/664 */
-
-     var all_events = [
+    /* 
+    var all_events = [
         'app_initialized.DashboardApp',
         'app_initialized.NotebookApp',
         'autosave_disabled.Notebook',
@@ -115,9 +115,11 @@ define([
         'unregistered_preset.CellToolbar',
     ];
 
+    
     events.on(all_events.join(' '), function (evt, data) {
-        console.log('[evt]', evt.type, (new Date()).toISOString(), data);
+        console.debug('[evt]', evt.type, (new Date()).toISOString(), data);
     });
+    */
 
     var params = {
         defaultSuccess     : "",
