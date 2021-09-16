@@ -188,16 +188,21 @@ define([
 	    var localDiv = $('<div />').addClass("text-center").addClass('ordo-admonition-controls');
             var btn = $('<button />');
 	    btn.addClass('btn btn-sm btn-primary ordo-admonition-btn').attr('data-toggle', 'button');
+
+	    /* Make sure that the magic happens when the DOM sub-structure
+	       of a given admonition cell has been fully loaded */
 	    
-	    if (params.enableModeToggle) {
-		btn.addClass('active').attr('aria-pressed', true);
-		cell.element.find('div.ordo-admonition-controls').nextAll().show();
-		btn.text('Close');
-	    } else {
-		btn.attr('aria-pressed', false)
-		cell.element.find('div.ordo-admonition-controls').nextAll().hide();
-		btn.text('Open');
-	    }
+	    cell.element.ready(function() {
+		if (params.enableModeToggle) {
+		    btn.addClass('active').attr('aria-pressed', true);
+		    cell.element.find('div.ordo-admonition-controls').nextAll().show();
+		    btn.text('Close');
+		} else {
+		    btn.attr('aria-pressed', false);
+		    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
+		    btn.text('Open');
+		}
+	    });
 
 	    btn.click(function() { onClickAdmonitionButton(cell,$(this)) });
 	    
