@@ -150,6 +150,9 @@ define([
 	showSolutionButton();
 	editMetadataButtons();
 
+	/* The default is feedback mode ... */
+	$('.command_mode').addClass('ordo_feedback_mode');
+	
 	if (params.enableModeToggle) {
 
 	    /* TODO: Remove toggle button, eventually */
@@ -709,7 +712,6 @@ define([
 	    
 	    Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name,adm_action_name])
 
-	    $('.command_mode').addClass('ordo_feedback_mode');
 	    $("[data-jupyter-action*='feedbackToggle']").addClass('active');
 
 	}
