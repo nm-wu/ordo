@@ -329,7 +329,6 @@ define([
      *      if result incorrect:
      *        append the failure message
      */
-    
     var onCodeCellExecuted = async function(evt, obj) {
         outputs = obj.cell.output_area.outputs;
         solution = obj.cell.metadata.ordo_solution;
