@@ -384,12 +384,12 @@ define([
 	events.on('finished_execute.CodeCell', onCodeCellExecuted);
     }
 
-	/**
-	 * returns the feedback div.
-	 * @param {boolean} correct - indicates if the solution was correct or not
-	 * @param {string} success_msg - the success message for the current cell, if defined
-	 * @param {string} failure_msg - the failure message for the current cell, if defined
-	 */
+    /**
+     * returns the feedback div.
+     * @param {boolean} correct - indicates if the solution was correct or not
+     * @param {string} success_msg - the success message for the current cell, if defined
+     * @param {string} failure_msg - the failure message for the current cell, if defined
+     */
     var ordoFeedbackMessage =  function(correct, success_msg, failure_msg) {
         if(correct) {
             if (success_msg == undefined && defaultSuccess == "") {
@@ -447,7 +447,7 @@ define([
                     "</div>"
 
         return feedback;
-	}
+    }
 
 	/**
 	 * tests two metadata objects for equality
