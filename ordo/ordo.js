@@ -331,53 +331,53 @@ define([
      */
     
     var onCodeCellExecuted = async function(evt, obj) {
-		outputs = obj.cell.output_area.outputs;
-		solution = obj.cell.metadata.ordo_solution;
-		
-		if (solution !== undefined) {
-			console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
+        outputs = obj.cell.output_area.outputs;
+        solution = obj.cell.metadata.ordo_solution;
+        
+        if (solution !== undefined) {
+            console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
 
-			if (obj.cell.metadata.ordo_verify === undefined) {
-				var res;
+            if (obj.cell.metadata.ordo_verify === undefined) {
+                var res;
 
-				if (solution['python'] !== undefined) {
-					console.debug("executePython AWAIT ", solution);
-					
-					res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
-					obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
-					
-					
-				} else {
-					res = solution;
-				}
+                if (solution['python'] !== undefined) {
+                    console.debug("executePython AWAIT ", solution);
+                    
+                    res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
+                    obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
+                    
+                    
+                } else {
+                    res = solution;
+                }
 
-				console.debug("executePython SOL xxxxx: ", res, outputs, outputs[outputs.length-1]);
-				feedback = ordoFeedbackMessage(
-					equals(res, outputs[outputs.length-1].data),
-					obj.cell.metadata.ordo_success, 
-					obj.cell.metadata.ordo_failure);
-			} else {
-				if(solution['python'] != undefined) {
-					console.debug("executePython AWAIT ",  solution);
-					
-					solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
-				} 
-			
-				console.debug("executePython SOL 2 ", solution);
-				feedback = obj.cell.metadata.ordo_verify(
-					outputs[outputs.length-1].data, 
-					obj.cell.metadata.ordo_success, 
-					obj.cell.metadata.ordo_failure);
-			}
+                console.debug("executePython SOL xxxxx: ", res, outputs, outputs[outputs.length-1]);
+                feedback = ordoFeedbackMessage(
+                    equals(res, outputs[outputs.length-1].data),
+                    obj.cell.metadata.ordo_success, 
+                    obj.cell.metadata.ordo_failure);
+            } else {
+                if(solution['python'] != undefined) {
+                    console.debug("executePython AWAIT ",  solution);
+                    
+                    solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
+                } 
+            
+                console.debug("executePython SOL 2 ", solution);
+                feedback = obj.cell.metadata.ordo_verify(
+                    outputs[outputs.length-1].data, 
+                    obj.cell.metadata.ordo_success, 
+                    obj.cell.metadata.ordo_failure);
+            }
 
-			obj.cell.output_area.append_output({
-				"output_type" : "display_data",
-				"data" : {
-					"text/html": feedback
-				},
-				"metadata" : {}
-			});
-		}
+            obj.cell.output_area.append_output({
+                "output_type" : "display_data",
+                "data" : {
+                    "text/html": feedback
+                },
+                "metadata" : {}
+            });
+        }
     };
         
     var ordoFeedback = function () {
