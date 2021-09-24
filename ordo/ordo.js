@@ -384,42 +384,63 @@ define([
 	 * @param {string} success_msg - the success message for the current cell, if defined
 	 * @param {string} failure_msg - the failure message for the current cell, if defined
 	 */
-	var ordoFeedbackMessage =  function(correct,success_msg,failure_msg) {
+	var ordoFeedbackMessage =  function(correct, success_msg, failure_msg) {
 		if(correct) {
 			if (success_msg == undefined && defaultSuccess == "") {
 				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						   "<strong>Well Done!</strong> That was the correct response. " + 
-						   " </div>"
-			} else if (success_msg == undefined && defaultSuccess) {
-				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
-						   defaultSuccess + 
-						   "</div>"
-			} else {
-				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
-						   success_msg + 
-						   "</div>"
+						   		"<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
+						   		"<strong>Well Done!</strong> That was the correct response. " + 
+						   " </div>";
+
+				return feedback;
 			}
-		} else {
-			if (failure_msg == undefined) {
-				feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " + 
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						   "<strong>Oh no!</strong> That wasn't quite right. " + 
+			
+			if (success_msg == undefined && defaultSuccess) {
+				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
+								"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
+								defaultSuccess +
 						   "</div>"
-			} else if (failure_msg == undefined && defaultFailure) {
-				feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " +
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button>" +
-						   defaultFailure + 
-						   "</div>"
-			} else {
-				feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'>" + 
-						   "<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
-						   failure_msg  + 
-						   "</div>"
+
+				return feedback;
 			}
+
+			feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
+							"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
+							success_msg +
+					   "</div>"
+
+			return feedback;
 		}
+		
+
+		/*
+			Solution was wrong.
+		*/
+
+		if (failure_msg == undefined) {
+			feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " + 
+							"<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
+							"<strong>Oh no!</strong> That wasn't quite right. " + 
+						"</div>"
+
+			return feedback;
+		}
+		
+		if (failure_msg == undefined && defaultFailure) {
+			feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " +
+							"<button type='button' class='close' data-dismiss='alert'>&times;</button>" +
+							defaultFailure + 
+						"</div>"
+
+			return feedback;
+		}
+
+
+		feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'>" + 
+						"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
+						failure_msg  + 
+					"</div>"
+
 		return feedback;
 	}
 
