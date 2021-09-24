@@ -369,7 +369,7 @@ define([
 					obj.cell.metadata.ordo_success, 
 					obj.cell.metadata.ordo_failure);
 			}
-			
+
 			obj.cell.output_area.append_output({
 				"output_type" : "display_data",
 				"data" : {
@@ -391,7 +391,7 @@ define([
 	 * @param {string} failure_msg - the failure message for the current cell, if defined
 	 */
 	var ordoFeedbackMessage =  function(correct, success_msg, failure_msg) {
-		if(correct) {
+	    if(correct) {
 			if (success_msg == undefined && defaultSuccess == "") {
 				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
 						   		"<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
@@ -405,7 +405,7 @@ define([
 				feedback = "<div class='alert alert-success alert-dismissible ordo_feedback' role='alert'> " + 
 								"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
 								defaultSuccess +
-						   "</div>"
+						    "</div>"
 
 				return feedback;
 			}
@@ -445,7 +445,7 @@ define([
 		feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'>" + 
 						"<button type='button' class='close' data-dismiss='alert'>&times;</button>" + 
 						failure_msg  + 
-					"</div>"
+                    "</div>"
 
 		return feedback;
 	}
