@@ -379,10 +379,10 @@ define([
     }
 
 	/**
-	 * returns the div containing the 
-	 * @param {boolean} correct - if the submitted solutions was correct or not
+	 * returns the feedback div.
+	 * @param {boolean} correct - indicates if the solution was correct or not
 	 * @param {string} success_msg - the success message for the current cell, if defined
-	 * @param {string} failure_msg - the failure message for the current cell, if defined 
+	 * @param {string} failure_msg - the failure message for the current cell, if defined
 	 */
 	var ordoFeedbackMessage =  function(correct,success_msg,failure_msg) {
 		if(correct) {
