@@ -484,7 +484,7 @@ define([
 	 *        append a button for the user to click which will:
 	 *        make ordo_solution = output_area.outputs[0]
 	 */
-	var makeOutputButton = function () {
+    var makeOutputButton = function () {
 
         events.on('select.Cell', function(event, data) {
             newCell = data.cell;
