@@ -485,31 +485,37 @@ define([
 	 *        make ordo_solution = output_area.outputs[0]
 	 */
 	var makeOutputButton = function () {
-		var currCell = undefined;
+
 		events.on('select.Cell', function(event, data) {
 			newCell = data.cell;
-			if(newCell == currCell){
+
+			if(data.cell == undefined) {
 				return;
-			} else if($('.ordo_edit_mode').length == 0) {
-				return;
-			} else {
-				$(".show-ordo-solution").remove();
-				$(".make-ordo-solution").remove();
-				currCell = newCell;
-				if(currCell.cell_type == "code") {
-					if(currCell.output_area.outputs.length > 0){
-						if(currCell.output_area.outputs[0].output_type == "execute_result") {
-							$(".selected .output_area")
-							.first()
-							.append("<button type='button' class='btn btn-primary make-ordo-solution'>make solution</button>");
-							$(".make-ordo-solution").on("click", function() {
-								console.debug("updated metadata");
-								currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-							});
-						}
-					}
-				}
 			}
+
+            if($('.ordo_edit_mode').length == 0) {
+			    return;
+			}
+
+
+            $(".show-ordo-solution").remove();
+            $(".make-ordo-solution").remove();
+
+            if(data.cell.cell_type == "code") {
+                if(data.cell.output_area.outputs.length > 0){
+                    if(data.cell.output_area.outputs[0].output_type == "execute_result") {
+                        $(".selected .output_area")
+                            .first()
+                            .append("<button type='button' class='btn btn-primary make-ordo-solution'>make solution</button>");
+
+
+                        $(".make-ordo-solution").on("click", function() {
+                            console.debug("updated metadata");
+                            data.cell.metadata.ordo_solution = data.cell.output_area.outputs[0].data;
+                        });
+                    }
+                }
+            }
 		}); 
 	}
 
