@@ -317,17 +317,10 @@ define([
 
 
     /**
-     *  Capture output_appended.OutputArea event for the result value
-     *  Capture finished_execute.CodeCell event for the data value
-     *  check for a solution in cell metadata
-     *  if exists:
-     *    check only one area appended (ends recursion)
-     *    if true:
-     *      check result against solution
-     *      if result correct:
-     *        append the success message
-     *      if result incorrect:
-     *        append the failure message
+     * executes the solution upon the event finished_execute.CodeCell and appends the result
+     * to the output area called
+     * @param {object} evt the event finished_execute.CodeCell. not used withing the function
+     * @param {object} obj an objectwhich provides access to the cell via property cell
      */
     var onCodeCellExecuted = async function(evt, obj) {
         outputs = obj.cell.output_area.outputs;
@@ -380,7 +373,7 @@ define([
     };
         
     var ordoFeedback = function () {
-	events.on('finished_execute.CodeCell', onCodeCellExecuted);
+        events.on('finished_execute.CodeCell', onCodeCellExecuted);
     }
 
     /**
