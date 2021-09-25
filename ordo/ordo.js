@@ -486,16 +486,16 @@ define([
 	 */
 	var makeOutputButton = function () {
 
-		events.on('select.Cell', function(event, data) {
-			newCell = data.cell;
+        events.on('select.Cell', function(event, data) {
+            newCell = data.cell;
 
-			if(data.cell == undefined) {
-				return;
-			}
+            if(data.cell == undefined) {
+                return;
+            }
 
             if($('.ordo_edit_mode').length == 0) {
-			    return;
-			}
+                return;
+            }
 
 
             $(".show-ordo-solution").remove();
@@ -516,8 +516,8 @@ define([
                     }
                 }
             }
-		}); 
-	}
+        });
+    }
 
 	/**
 	 * @param {Object} solution - 
