@@ -371,7 +371,11 @@ define([
             });
         }
     };
-        
+    
+    /**
+     * registers function onCodeCellExecuted to event finished_execute.CodeCell. This function is hence
+     * called after the current code cell is executed
+     */
     var ordoFeedback = function () {
         events.on('finished_execute.CodeCell', onCodeCellExecuted);
     }
