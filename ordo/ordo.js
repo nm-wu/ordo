@@ -520,8 +520,9 @@ define([
     }
 
 	/**
-	 * @param {Object} solution - 
-	 * returns the correct solution in the appropriate format
+     * returns the solution as a string
+	 * @param {Object} solution
+     * @returns {String} solution 
 	 */
     var solutionToString = function(solution) {
         var outStr = "";
