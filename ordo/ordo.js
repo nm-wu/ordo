@@ -527,26 +527,20 @@ define([
      */
     var solutionToString = function(solution) {
 
+        /* TODO: change to "text/x-..." later */
+        var acceptedMimeTypes = ["python", "text/html", "text/plain"];
+
+
         var mimeTypes = Object.keys(solution);
         console.debug("mimeTypes", mimeTypes);
 
-        /* TODO: change to "text/x-..." later */
-        if (mimeTypes.includes("python")) {
-            outStr = solution["python"];
-            console.debug(outStr);
-            return outStr;
-        }
 
-        if (mimeTypes.includes("text/html")) {
-            outStr = solution["text/html"];
-            console.debug(outStr);
-            return outStr;
-        }
-
-        if (mimeTypes.includes["text/plain"]) {
-            outStr = solution["text/plain"];
-            console.debug(outStr);
-            return outStr;
+        for(acceptedMimeType in acceptedMimeTypes) {
+            if (mimeTypes.includes(acceptedMimeType)) {
+                outStr = solution[acceptedMimeType];
+                console.debug(outStr);
+                return outStr;
+            }
         }
 
         return null;
