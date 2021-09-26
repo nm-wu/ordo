@@ -520,7 +520,8 @@ define([
     }
 
 	/**
-     * returns the solution as a string
+     * returns the solution as a string for display purposes. this is used when the user clicks on
+     * Edit Solutions
 	 * @param {Object} solution
      * @returns {String} solution 
 	 */
