@@ -519,12 +519,12 @@ define([
         });
     }
 
-	/**
+    /**
      * returns the solution as a string for display purposes. this is used when the user clicks on
      * Edit Solutions
-	 * @param {Object} solution
+     * @param {Object} solution
      * @returns {String} solution 
-	 */
+     */
     var solutionToString = function(solution) {
 
         var mimeTypes = Object.keys(solution);
