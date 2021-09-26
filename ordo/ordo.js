@@ -523,28 +523,30 @@ define([
 	 * @param {Object} solution - 
 	 * returns the correct solution in the appropriate format
 	 */
-    var solutionToString = function (solution) {
+    var solutionToString = function(solution) {
         var outStr = "";
         var mimeTypes = Object.keys(solution);
         console.debug("mimeTypes", mimeTypes);
+
         /* TODO: change to "text/x-..." later */
         if (mimeTypes.includes("python")) {
-        outStr = solution["python"];
+            outStr = solution["python"];
         } else {
-        for (var mt of mimeTypes) {
-            console.debug("mt", mt);
-            switch (mt) {
-            case "text/html":
-            outStr = solution[mt];
-            break;
-            case "text/plain":
-            outStr = solution[mt];
-            break;
-            default:
-            outStr = null;
+            for (var mt of mimeTypes) {
+                console.debug("mt", mt);
+                switch (mt) {
+                    case "text/html":
+                        outStr = solution[mt];
+                    break;
+                    case "text/plain":
+                        outStr = solution[mt];
+                    break;
+                    default:
+                        outStr = null;
+                }
             }
         }
-        }
+
         console.debug(outStr);
         return outStr;
     }
