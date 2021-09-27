@@ -281,6 +281,16 @@ define([
 	    console.debug(cell.metadata);
 	    toggleOpenButton(cell);
 	});
+
+	/* handle copy/ cut & paste of cells */
+	events.on('create.Cell', (event, data) => {
+	    var cell = data.cell;
+	    /* Metadata might not be available upon create.Cell, so we
+	     * have to defer ... */
+	    events.one('set_dirty.Notebook', (event, data) => {
+		toggleOpenButton(cell);
+	    });
+	});
     }
 
     /**
