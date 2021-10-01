@@ -8,7 +8,7 @@ Install and enable ordo on your Jupyter server
 curl -LO https://github.com/nm-wu/ordo/archive/refs/heads/main.zip
 unzip main.zip
 cd ordo-main/
-pip install ordo
+pip install -e .
 jupyter nbextension install --py --sys-prefix ordo
 jupyter nbextension enable --py ordo
 ```
@@ -18,7 +18,7 @@ jupyter nbextension enable --py ordo
 ```{shell}
 git clone git@github.com:nm-wu/ordo.git
 cd ordo/
-pip install ordo
+pip install -e .
 jupyter nbextension install --py --sys-prefix --symlink ordo
 jupyter nbextension enable --py ordo 
 ```
