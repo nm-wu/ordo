@@ -548,7 +548,7 @@ define([
 
 	/**
 	 * 
-	 * creates a button to show the current solution to the user
+	 * creates and appends a button to show the current solution to the user.
 	 */
 	var showSolutionButton = function () {
 		var currCell = undefined;
