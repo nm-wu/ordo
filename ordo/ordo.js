@@ -546,57 +546,66 @@ define([
         return null;
     }
 
-	/**
-	 * 
-	 * creates and appends a button to show the current solution to the user.
-	 */
-	var showSolutionButton = function () {
-		var currCell = undefined;
-		events.on('select.Cell', function(event, data) {
-			newCell = data.cell;
-			if(newCell == currCell){
-				return;
-			} else if($('.ordo_feedback_mode').length == 0) {
-				return;
-			} else {
-				$(".show-ordo-solution").remove();
-				currCell = newCell;
-				if(currCell.cell_type === "code" && currCell.metadata && currCell.metadata.ordo_solution) {
-				    if(currCell.output_area.outputs.length > 0) {
-					console.debug("Show solution button");
-					console.debug(currCell.output_area.outputs[0].output_type);
-					if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
-					    $(".selected .input")
-						.after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
-					    $(".show-ordo-solution").one("click", function() {
-						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-						// solution = solutionToString(currCell.metadata.ordo_solution)
-						console.debug(currCell.metadata.ordo_solution);
+    /**
+     * 
+     * creates and appends a button to show the current solution to the user.
+     */
+    var showSolutionButton = function () {
 
-						/* TODO: 
-						  * - Improve retrieval here based on a parametric solutionToString 
-						  * - Make sure that we escape text/plain content here, as feedback requires markup!
-						  */
-						
-						solution = currCell.metadata.ordo_solution['text/plain']
-						console.debug("Current solution => " + solution);
-						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
-						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						    "<stron> Expected solution is: </strong>" + solution  + " </div>"
-						currCell.output_area.append_output({
-						    "output_type" : "display_data",
-						    "data" : {
-							"text/html": feedback
-						    },
-						    "metadata" : {}
-						});
-					    });
-					}
-					}
-				}
-			}
-		}); 
-	}
+        events.on('select.Cell', function(event, data) {
+
+            if(data.cell == undefined){
+                return;
+            }
+            
+            if($('.ordo_feedback_mode').length == 0) {
+                return;
+            }
+
+
+            $(".show-ordo-solution").remove();
+
+            currCell = data.cell;
+            if(currCell.cell_type === "code" && currCell.metadata && currCell.metadata.ordo_solution) {
+                
+                if(currCell.output_area.outputs.length > 0) {
+                    console.debug("Show solution button");
+                    console.debug(currCell.output_area.outputs[0].output_type);
+
+                    if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
+                        $(".selected .input")
+                            .after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
+                        
+                        $(".show-ordo-solution").one("click", function() {
+                            //currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
+                            // solution = solutionToString(currCell.metadata.ordo_solution)
+                            console.debug(currCell.metadata.ordo_solution);
+
+                            /* TODO: 
+                                * - Improve retrieval here based on a parametric solutionToString 
+                                * - Make sure that we escape text/plain content here, as feedback requires markup!
+                                */
+                            
+                            solution = currCell.metadata.ordo_solution['text/plain'];
+                            console.debug("Current solution => " + solution);
+                            
+                            feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
+                                        "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
+                                        "<stron> Expected solution is: </strong>" + solution  + " </div>";
+                            
+                                currCell.output_area.append_output({
+                                    "output_type" : "display_data",
+                                    "data" : {
+                                        "text/html": feedback
+                                    },
+                                    "metadata" : {}
+                            });
+                        });
+                    }
+                }
+            }
+        }); 
+    }
     
     /**
 	 * sets the solution for the current cell to be the solution for all cells in the notebook
