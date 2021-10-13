@@ -22,7 +22,7 @@ define([
     var defaultFailure = "";
 
     /* Taken from https://github.com/ipython-contrib/jupyter_contrib_nbextensions/issues/664 */
-    /* 
+ 
     var all_events = [
         'app_initialized.DashboardApp',
         'app_initialized.NotebookApp',
@@ -119,7 +119,6 @@ define([
     events.on(all_events.join(' '), function (evt, data) {
         console.debug('[evt]', evt.type, (new Date()).toISOString(), data);
     });
-    */
 
     var params = {
         defaultSuccess     : "",
@@ -184,7 +183,7 @@ define([
 
     var toggleOpenButton = function(cell) {
 	console.debug("toggleOpenButton");
-	console.debug(cell);
+	console.debug(cell, cell.metadata /*, cell.metadata.ordo.admonition, cell.metadata.ordo.admonition*/);
 	if (cell.metadata.ordo !== undefined &&
 	    cell.metadata.ordo.admonition !== undefined &&
 	    cell.metadata.ordo.admonition) {
@@ -208,9 +207,10 @@ define([
 	    });
 
 	    btn.click(function() { onClickAdmonitionButton(cell,$(this)) });
-	    
+	    console.debug("PREPENDING", localDiv);
 	    cell.element.prepend(localDiv.append(btn));
 	} else {
+	    console.debug("NOT PREPENDING");
 	    cell.element.find('div.ordo-admonition-controls').remove();
 	}
     }
@@ -325,6 +325,41 @@ define([
     }
 
 
+    var getOutput = function(obj) {
+
+	var outputs = obj.cell.output_area.outputs;
+	var chan = obj.cell.metadata.ordo_channel || "display";
+
+	var output;
+
+	console.debug("OUTPUTS", outputs, "channel", chan);
+
+	if (chan === "display") {
+	    var outs = outputs.filter(
+		(current) => {
+		    return(current.output_type === "execute_result");
+		})
+	    if (outs.length > 0) {
+		output = outs[0].data;
+	    }
+	} else if (chan !== undefined && ["stderr","stdout"].includes(chan)) {
+	    var outs = outputs.filter(
+		(current) => {
+		    return(current.output_type === "stream"
+			   && current.name === chan);
+		})
+
+	    if (outs.length > 0) {
+		output = {
+		    "text/plain" : outs[0].text
+		};
+	    }
+	} else {
+	    /* unsupported case */
+	    console.debug("getOutput")
+	}
+	return output
+    }
 
     /**
      *  Capture output_appended.OutputArea event for the result value
@@ -341,38 +376,71 @@ define([
      */
     
     var onCodeCellExecuted = async function(evt, obj) {
-	outputs = obj.cell.output_area.outputs;
-	solution = obj.cell.metadata.ordo_solution;
+	
+	var solution = obj.cell.metadata.ordo_solution;
+	var feedback;
 	if (solution !== undefined) {
-	    console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
+	    var res;
+	    var output = getOutput(obj);
 
-	    if (obj.cell.metadata.ordo_verify === undefined) {
-		var res;
-		if (solution['python'] !== undefined) {
-		    console.debug("executePython AWAIT ", solution);
-		    
-		    res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
-		    obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
-		     
-		    
-		} else {
-		    res = solution;
-		}
-		console.debug("executePython SOL xxxxx: ", res, outputs, outputs[outputs.length-1]);
-		feedback = ordoFeedbackMessage(equals(res, outputs[outputs.length-1].data),
+	    console.debug("OUTPUT", output);
+
+	    if (solution['python'] !== undefined) {
+		console.debug("executePython AWAIT ", solution);
+		
+		res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
+		obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
+		
+	    } else {
+		res = solution;
+	    }
+	    
+	    if (output === undefined) {
+		/* We have a solution, but a required output is missing */
+		var channel = obj.cell.metadata.ordo_channel || "display";
+		console.debug("[ordo] missing output, but required", solution)
+		feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " + 
+		    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
+		    "<strong>Oh no!</strong> There is no output available on <code>" + channel + "</code>" + 
+		    "</div>"
+	    } else {
+		
+		console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
+
+		feedback = ordoFeedbackMessage(equals(res, output),
 					       obj.cell.metadata.ordo_success, 
 					       obj.cell.metadata.ordo_failure);
-	    } else {
-		if(solution['python'] != undefined) {
-		    console.debug("executePython AWAIT ",  solution);
-		    
-		    solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
-		} 
+	
 		
-		console.debug("executePython SOL 2 ", solution);
-		feedback = obj.cell.metadata.ordo_verify(outputs[outputs.length-1].data, 
-							 obj.cell.metadata.ordo_success, 
-							 obj.cell.metadata.ordo_failure);
+		/* if (obj.cell.metadata.ordo_verify === undefined) {
+		    var res;
+		    if (solution['python'] !== undefined) {
+			console.debug("executePython AWAIT ", solution);
+			
+			res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
+			obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
+			
+			
+		    } else {
+			res = solution;
+		    }
+		    console.debug("executePython SOL xxxxx: ", res, output);
+		    feedback = ordoFeedbackMessage(equals(res, output),
+						   obj.cell.metadata.ordo_success, 
+						   obj.cell.metadata.ordo_failure);
+		} else {
+		    if(solution['python'] !== undefined) {
+			console.debug("executePython AWAIT ",  solution);
+			
+			solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
+		    } 
+		    
+		    console.debug("executePython SOL 2 ", solution);
+		    feedback = obj.cell.metadata.ordo_verify(output, 
+							     obj.cell.metadata.ordo_success, 
+							     obj.cell.metadata.ordo_failure);
+		}
+		*/
 	    }
 	    obj.cell.output_area.append_output({
 		"output_type" : "display_data",
@@ -383,7 +451,7 @@ define([
 	    });
 	}
     };
-        
+    
     var ordoFeedback = function () {
 	events.on('finished_execute.CodeCell', onCodeCellExecuted);
     }
@@ -585,10 +653,11 @@ define([
 						  */
 						
 						solution = currCell.metadata.ordo_solution['text/plain']
+						var channel = currCell.metadata.ordo_channel || "display";
 						console.debug("Current solution => " + solution);
 						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
 						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						    "<stron> Expected solution is: </strong>" + solution  + " </div>"
+						    "<stron> Expected solution is (on <code>"+ channel + "</code>): </strong><pre>" + solution  + "</pre></div>"
 						currCell.output_area.append_output({
 						    "output_type" : "display_data",
 						    "data" : {
@@ -739,6 +808,7 @@ define([
 			sol = {}
 			sol[$('#output_type').val()] = $('#solution_text_area').val()
 			cell.metadata.ordo_solution = sol
+			cell.metadata.ordo_channel = $('input[name="channelOptions"]:checked').val();
 		    }
 		},
 	    },
@@ -835,63 +905,64 @@ define([
 	 */
 	var makeMessageInputArea = function() {
 		var styles= [
-			'bold',
-			'plain text',
-			'html'
+		    'bold',
+		    'plain text',
+		    'html'
 		]
-		
-		$sel = $('<select />', {
-			'class': "form-control",
-			'id': "styling",
-			'title': 'Select the styling for the following text'
-		})
-		$.each(styles, function(index, type) {
-			$sel.append("<option>" + type + "</option>")
-		})
-
-		var inputArea = $('<div />', {
-			'class': 'inputArea'
+	    
+	    $sel = $('<select />', {
+		'class': "form-control",
+		'id': "styling",
+		'title': 'Select the styling for the following text'
+	    })
+	    $.each(styles, function(index, type) {
+		$sel.append("<option>" + type + "</option>")
+	    })
+	    
+	    var inputArea = $('<div />', {
+		'class': 'inputArea'
+	    }).append(
+		$('<div />', {
+		    'title': 'Message Input Area'
 		}).append(
-			$('<div />', {
-				'title': 'Message Input Area'
-			}).append(
-				$('<form />', {
-					'class': "form-inline"
-				}).append($sel)
-					.append(
-						$('<textarea />', {
-							'class': 'form-control',
-							'id': 'message_text_area',
-							'rows': '2',
-							'style': 'width:70%',
-							'title': 'Input text here!'
-						}))
-						.append(
-							$('<button />', {
-								'class': 'btn btn-default add-field',
-								'title': 'Add another field'
-							}).append(
-								$('<span />', {
-									'class': 'fa fa-plus'
-								})
-							)
-						)
-					.append($('<p />', {
-						'class': 'form-text text-muted',
-						'text': 'When html is selected, users may format their message using html as desired.'
-					}))
-				)
-			) 
-		return inputArea;
+		    $('<form />', {
+			'class': "form-inline"
+		    }).append($sel)
+			.append(
+			    $('<textarea />', {
+				'class': 'form-control',
+				'id': 'message_text_area',
+				'rows': '2',
+				'style': 'width:70%',
+				'title': 'Input text here!'
+			    }))
+			.append(
+			    $('<button />', {
+				'class': 'btn btn-default add-field',
+				'title': 'Add another field'
+			    }).append(
+				$('<span />', {
+				    'class': 'fa fa-plus'
+				})
+			    )
+			)
+			.append($('<p />', {
+			    'class': 'form-text text-muted',
+			    'text': 'When html is selected, users may format their message using html as desired.'
+			}))
+		)
+	    )
+	    return inputArea;
 	}
-
+    
 	/**
 	 * html for the input form to create a solution
 	 */
     var makeSolutionInputArea = function(cell) {
 
 	solution = cell.metadata.ordo_solution;
-	console.debug("makeSolutionInputArea", solution);
+	channel = cell.metadata.ordo_channel;
+	console.debug("makeSolutionInputArea", solution, channel);
 	
 		var output_types = [
 			'text/plain',
@@ -921,38 +992,50 @@ define([
 	    $sel.append(opt);
 	})
 
-		var inputArea = $('<div />', {
-			'title': 'Solution Input Area'
-		}).append(
-			$('<form />', {
-				'class': "form-inline"
-			}).append($sel).append(
-				$('<textarea />', {
-					'class': 'form-control solution_text_area',
-					'id': 'solution_text_area',
-					'rows': '2',
-					'style': 'width:65%',
-					'title': 'Input text here!'
-				})).append(
-				$('<button />', {
-					'class': 'btn btn-default',
-					'title': 'Add another field'
-				}).append(
-					$('<span />', {
-						'class': 'fa fa-plus'
-					})
-				)
-			)
+	var inputArea = $('<div />', {
+	    'title': 'Solution Input Area'
+	}).append(
+	    $('<form />', {
+		'class': "form-inline"
+	    }).append($sel)
+		.append('<div class="form-check">' +
+			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio1" value="display" checked>' +
+			'<label class="form-check-label" for="inlineRadio1">display</label>' +
+			'</div>' +
+			'<div class="form-check">' +
+			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio2" value="stdout">'+
+			'<label class="form-check-label" for="inlineRadio2">stdout</label>'+
+			'</div>'+
+			'<div class="form-check">'+
+			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio3" value="stderr">' +
+			'<label class="form-check-label" for="inlineRadio3">stderr</label>'+
+			'</div>')
+		.append($('<textarea />', {
+		    'class': 'form-control solution_text_area',
+		    'id': 'solution_text_area',
+		    'rows': '2',
+		    'style': 'width:65%',
+		    'title': 'Input text here!'
+		})).append(
+		    $('<span />', {
+			'class': 'fa fa-plus'
+		    })
 		)
-
-	    if (solution !== undefined) {
-	        $('#solution_text_area', inputArea).val(solutionToString(solution));
-	    }
-	    
-	    return inputArea;
+	)
+	
+	if (solution !== undefined) {
+	    $('#solution_text_area', inputArea).val(solutionToString(solution));
 	}
-
-    var ordo_exts = function() {
+	
+	if (channel !== undefined) {
+	    $('input[name="channelOptions"]:checked', inputArea).prop('checked', false);
+	    $('input[name="channelOptions"][value="' + channel + '"]', inputArea).prop('checked', true);
+	}
+	
+	return inputArea;
+    }
+       
+       var ordo_exts = function() {
 	return Jupyter.notebook.config.loaded.then(readConfig).then(initialize).catch(function on_error (reason) {
             console.error('Error:', reason);
         });
