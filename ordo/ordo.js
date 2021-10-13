@@ -328,13 +328,13 @@ define([
     var getOutput = function(obj) {
 
 	var outputs = obj.cell.output_area.outputs;
-	var chan = obj.cell.metadata.ordo_channel || "display";
+	var chan = obj.cell.metadata.ordo_channel || "result";
 
 	var output;
 
 	console.debug("OUTPUTS", outputs, "channel", chan);
 
-	if (chan === "display") {
+	if (chan === "result") {
 	    var outs = outputs.filter(
 		(current) => {
 		    return(current.output_type === "execute_result");
@@ -397,7 +397,7 @@ define([
 	    
 	    if (output === undefined) {
 		/* We have a solution, but a required output is missing */
-		var channel = obj.cell.metadata.ordo_channel || "display";
+		var channel = obj.cell.metadata.ordo_channel || "result";
 		console.debug("[ordo] missing output, but required", solution)
 		feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " + 
 		    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
@@ -653,7 +653,7 @@ define([
 						  */
 						
 						solution = currCell.metadata.ordo_solution['text/plain']
-						var channel = currCell.metadata.ordo_channel || "display";
+						var channel = currCell.metadata.ordo_channel || "result";
 						console.debug("Current solution => " + solution);
 						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
 						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
@@ -999,8 +999,8 @@ define([
 		'class': "form-inline"
 	    }).append($sel)
 		.append('<div class="form-check">' +
-			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio1" value="display" checked>' +
-			'<label class="form-check-label" for="inlineRadio1">display</label>' +
+			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio1" value="result" checked>' +
+			'<label class="form-check-label" for="inlineRadio1">result</label>' +
 			'</div>' +
 			'<div class="form-check">' +
 			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio2" value="stdout">'+
