@@ -608,37 +608,49 @@ define([
 
 
     /**
-	 * sets the solution of the current cell to be the solution for all cells in the notebook
-	 */
-	var allOutputsButton = function() {
-		var myFunc = function () {
-			cells = Jupyter.notebook.get_cells();
-			for(i=0;i < cells.length;i++) {
-				if(cells[i].cell_type == "code") {
-					if(cells[i].output_area != undefined) {
-						if(cells[i].output_area.outputs.length > 0) {
-							if(cells[i].output_area.outputs[0].output_type == "execute_result") {
-								cells[i].metadata.ordo_solution = cells[i].output_area.outputs[0].data
-								console.debug("updated metadata");
-							}
-						}
-					}
-				}
-			}
-		};
-		var action = {
-			icon: 'fa-lightbulb-o',
-			help: 'Make all outputs solutions',
-			help_index: 'zz',
-			handler: myFunc
-		};
-		var prefix = 'allOutputsButton';
-		var action_name = 'show-button';
-		var full_action_name = Jupyter.actions.register(action, action_name,prefix);
-		if($("[data-jupyter-action*='allOutputsButton']").length == 0) {
-			Jupyter.toolbar.add_buttons_group([full_action_name]);
-		}
-	}
+     * Sets the solution of the current cell to be the solution for all cells in the notebook
+     */
+    var allOutputsButton = function() {
+
+        var myFunc = function () {
+            cells = Jupyter.notebook.get_cells();
+
+            for(i=0; i < cells.length; i++) {
+
+                if(cells[i].cell_type == "code") {
+                    
+                    if(cells[i].output_area != undefined) {
+
+                        if(cells[i].output_area.outputs.length > 0) {
+
+                            if(cells[i].output_area.outputs[0].output_type == "execute_result") {
+                                cells[i].metadata.ordo_solution = cells[i].output_area.outputs[0].data
+                                console.debug("updated metadata");
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+
+        var action = {
+            icon: 'fa-lightbulb-o',
+            help: 'Make all outputs solutions',
+            help_index: 'zz',
+            handler: myFunc
+        };
+        
+
+        var prefix = 'allOutputsButton';
+        var action_name = 'show-button';
+        var full_action_name = Jupyter.actions.register(action, action_name, prefix);
+        
+
+        if($("[data-jupyter-action*='allOutputsButton']").length == 0) {
+            Jupyter.toolbar.add_buttons_group([full_action_name]);
+        }
+    }
 
 	/**
 	 * toggles the cell mode between editing/creating solutions and giving feedback
