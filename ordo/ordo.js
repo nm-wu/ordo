@@ -771,7 +771,7 @@ define([
 
 
     /**
-     * Invokes the edit success message model for a given cell
+     * Invokes the edit success message modal for a given cell
      * @param {object} A jupyter notebook cell object
      */
     var onEditSuccMsg = function(cell) {
@@ -802,7 +802,7 @@ define([
 
 
     /**
-     * Invokes the edit fail message model for a given cell
+     * Invokes the edit fail message modal for a given cell
      * @param {object} A jupyter notebook cell object
      */
     var onEditFailMsg = function(cell) {
@@ -835,25 +835,30 @@ define([
      * creates the buttons and handles the functionality related to editing a solution
      */
     var editMetadataButtons = function() {
-	var currCell = undefined;
-	events.on('select.Cell', function(event, data) {
-	    newCell = data.cell;
-	    if(newCell == currCell){
-		return;
-	    } else if($('.ordo_edit_mode').length == 0) {
-		return;
-	    } else {
-		$(".ordo-user-input").remove();
-		currCell = newCell;
-		if(currCell.cell_type == "code") {
-		    $(".selected > .output_wrapper .output").append(ordoEditButtons);
-		    $(".ordo-add-solution").on('click', (evt) => onEditSol(currCell));
-		    $(".ordo-add-success-msg").on('click', (evt) => onEditSuccMsg(currCell));
-		    $(".ordo-add-failure-msg").on('click', (evt) => onFailureSuccMsg(currCell));
-		}
-	    }
-	}); 
-    }
+        
+        events.on('select.Cell', function(event, data) {
+            
+            if(data.cell == undefined){
+                return;
+            }
+            
+            if($('.ordo_edit_mode').length == 0) {
+                return;
+            }
+            
+
+
+            $(".ordo-user-input").remove();
+            
+            if(data.cell.cell_type == "code") {
+                $(".selected > .output_wrapper .output").append(ordoEditButtons);
+                $(".ordo-add-solution").on('click', (evt) => onEditSol(data.cell));
+                $(".ordo-add-success-msg").on('click', (evt) => onEditSuccMsg(data.cell));
+                $(".ordo-add-failure-msg").on('click', (evt) => onFailureSuccMsg(data.cell));
+            }
+            
+        });
+    };
     
 	/**
 	 * html for the feedback buttons on a cell
