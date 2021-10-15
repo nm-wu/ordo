@@ -924,6 +924,7 @@ define([
 
     /**
      * Assembles HTML for the create a solution input form and returns it as a string
+     * @param {Object} cell The jupyter notebooks cell object
      * @returns {String} inputArea The create a solution input form HTML as a string
      */
     var makeSolutionInputArea = function(cell) {
