@@ -770,7 +770,10 @@ define([
 
 
 
-
+    /**
+     * Invokes the edit success message model for a given cell
+     * @param {object} A jupyter notebook cell object
+     */
     var onEditSuccMsg = function(cell) {
         dialog.modal({
             'title': 'Edit Success Messages',
