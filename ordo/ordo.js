@@ -993,14 +993,18 @@ define([
         
         return inputArea;
     };
-    
+
 
     var ordo_exts = function() {
-	return Jupyter.notebook.config.loaded.then(readConfig).then(initialize).catch(function on_error (reason) {
-            console.error('Error:', reason);
+        return Jupyter.notebook.config.loaded
+            .then(readConfig)
+            .then(initialize)
+            .catch(function on_error(reason) {
+                console.error('Error:', reason);
         });
-    }
+    };
+
     return {
-	load_ipython_extension: ordo_exts
+        load_ipython_extension: ordo_exts
     }
 });
