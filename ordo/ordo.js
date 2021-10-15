@@ -274,16 +274,19 @@ define([
 	}
     };
 
-    var initializeCells = function() {
-	console.log(Jupyter.notebook.get_cells());
-	Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
-	    console.debug("initializeCells");
-	    console.debug(cell.metadata);
-	    toggleOpenButton(cell);
-	});
-    }
 
-    
+
+    var initializeCells = function() {
+
+        Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
+            console.debug("initializeCells");
+            console.debug(cell.metadata);
+
+            toggleOpenButton(cell);
+        });
+    };
+
+
     /**
      * reads and sets configuration properties, which contains the default messages
      * for failure and success
