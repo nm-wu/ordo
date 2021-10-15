@@ -742,51 +742,58 @@ define([
         $("[data-jupyter-action*='feedbackToggle']").addClass('active');
     };
 
-    
 
+    /**
+     * Invokes the edit solution modal for a given cell
+     * @param {object} A jupyter notebook cell object
+     */
     var onEditSol = function(cell) {
-	dialog.modal({
-	    'title': 'Edit Solutions',
-	    'body': makeSolutionInputArea(cell),
-	    'buttons': {
-		'Cancel': {},
-		'Save New Solution': {
-		    'id': 'save-solution-btn',
-		    'class': 'btn-primary',
-		    'click': function() {
-			sol = {}
-			sol[$('#output_type').val()] = $('#solution_text_area').val()
-			cell.metadata.ordo_solution = sol
-		    }
-		},
-	    },
-	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
-	    'notebook': Jupyter.notebook
-	})
+        dialog.modal({
+            'title': 'Edit Solutions',
+            'body': makeSolutionInputArea(cell),
+            'buttons': {
+                'Cancel': {},
+                'Save New Solution': {
+                    'id': 'save-solution-btn',
+                    'class': 'btn-primary',
+                    'click': function() {
+                        sol = {};
+                        sol[$('#output_type').val()] = $('#solution_text_area').val();
+                        cell.metadata.ordo_solution = sol;
+                    }
+                },
+            },
+            'keyboard_manager': Jupyter.notebook.keyboard_manager,
+            'notebook': Jupyter.notebook
+        });
     };
 
+
+
+
     var onEditSuccMsg = function(cell) {
-	dialog.modal({
-	    'title': 'Edit Success Messages',
-	    'body': makeMessageInputArea(cell),
-	    'buttons': {
-		'Cancel': {},
-		'Save New Message': {
-		    'id': 'save-success-msg-btn',
-		    'class': 'btn-primary',
-		    'click': function() {
-			if($('#styling').val() == "bold") {
-			    sol = "<b>" + $('#message_text_area').val() + "</b>"
-			} else {
-			    sol = $('#message_text_area').val() 
-			}
-			cell.metadata.ordo_success = sol
-		    }
-		},
-	    },
-	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
-	    'notebook': Jupyter.notebook
-	})
+        dialog.modal({
+            'title': 'Edit Success Messages',
+            'body': makeMessageInputArea(cell),
+            'buttons': {
+                'Cancel': {},
+                'Save New Message': {
+                    'id': 'save-success-msg-btn',
+                    'class': 'btn-primary',
+                    'click': function() {
+                        if($('#styling').val() == "bold") {
+                            sol = "<b>" + $('#message_text_area').val() + "</b>";
+                        } else {
+                            sol = $('#message_text_area').val();
+                        }
+                        
+                        cell.metadata.ordo_success = sol;
+                    }
+                },
+            },
+            'keyboard_manager': Jupyter.notebook.keyboard_manager,
+            'notebook': Jupyter.notebook
+        })
     };
 
     var onEditFailMsg = function(cell) {
