@@ -873,7 +873,8 @@ define([
     
     
     /**
-     * html for the input box to create a feedback message
+     * Assembles the html for the input box and returns it
+     * @returns {String} inputArea the html for the input box as a string
      */
     var makeMessageInputArea = function() {
         var styles= [
