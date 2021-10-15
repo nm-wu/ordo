@@ -17,7 +17,7 @@ define([
     console.debug("...Ordo loaded... grading capabilities initiated");
 
     var CellToolbar = celltoolbar.CellToolbar;
-    
+
     var defaultSuccess = "";
     var defaultFailure = "";
 
@@ -47,7 +47,7 @@ define([
         'edit_mode.Cell',
         'edit_mode.Notebook',
         'execute.CodeCell',
-	'finished_execute.CodeCell',
+        'finished_execute.CodeCell',
         'execution_request.Kernel',
         'expand_pager',
         'file_load_failed.Editor',
@@ -115,7 +115,7 @@ define([
         'unregistered_preset.CellToolbar',
     ];
 
-    
+
     events.on(all_events.join(' '), function (evt, data) {
         console.debug('[evt]', evt.type, (new Date()).toISOString(), data);
     });
@@ -123,12 +123,14 @@ define([
 
     var params = {
         defaultSuccess     : "",
-	defaultFailure     : "",
-	enableModeToggle   : true
+    defaultFailure     : "",
+    enableModeToggle   : true
     };
+
+
     
     var initialize = function () {
-	
+
         $('<link/>')
             .attr({
                 rel: 'stylesheet',
@@ -137,38 +139,42 @@ define([
             })
             .appendTo('head');
 
-	events.on("notebook_loaded.Notebook", function() {
-	    initializeCells()
-	});
+
+        events.on("notebook_loaded.Notebook", function() {
+            initializeCells()
+        });
+
+
+
         if (Jupyter.notebook !== undefined && Jupyter.notebook._fully_loaded) {
             initializeCells();
         }
-	
-	
-	ordoFeedback();
-	makeOutputButton();
-	showSolutionButton();
-	editMetadataButtons();
 
-	/* The default is feedback mode ... */
-	$('.command_mode').addClass('ordo_feedback_mode');
-	
-	if (params.enableModeToggle) {
 
-	    /* TODO: Remove toggle button, eventually */
-	    
-	    ordoEditFeedbackToggle();
+        ordoFeedback();
+        makeOutputButton();
+        showSolutionButton();
+        editMetadataButtons();
 
-	    CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
-	    
-            var preset = [
-		'create_tutorial.toolbar'
-            ];
-	    
-            CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
-	}
+
+        /* The default is feedback mode ... */
+        $('.command_mode').addClass('ordo_feedback_mode');
+
+        if (params.enableModeToggle) {
+
+            /* TODO: Remove toggle button, eventually */
+            
+            ordoEditFeedbackToggle();
+
+            CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
+            
+                var preset = ['create_tutorial.toolbar'];
+            
+                CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
+        }
 
     };
+
 
 
     /**
