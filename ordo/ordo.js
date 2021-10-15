@@ -651,94 +651,98 @@ define([
         }
     }
 
-	/**
-	 * toggles the cell mode between editing/creating solutions and giving feedback
-	 */
-	var ordoEditFeedbackToggle = function() {
-		var editMode = function() {
-			$('.command_mode').removeClass('ordo_feedback_mode');
-			$('.command_mode').addClass('ordo_edit_mode');
-			$("[data-jupyter-action*='feedbackToggle']").removeClass('active');
-			$("[data-jupyter-action*='editModeToggle']").addClass('active');
-			makeOutputButton();
-			allOutputsButton();
-		};
-		var eMaction = {
-			icon: 'fa-pencil',
-			help: 'Enter ordo-edit mode',
-			help_index: 'zy',
-			handler: editMode
-		};
-		var eMprefix = 'editModeToggle';
-		var eMaction_name = 'EnterEditMode';
-		var eM_action_name = Jupyter.actions.register(eMaction, eMaction_name, eMprefix);
 
-		var feedbackMode = function() {
-			$('.command_mode').removeClass('ordo_edit_mode');
-			$('.command_mode').addClass('ordo_feedback_mode');
-			$("[data-jupyter-action*='editModeToggle']").removeClass('active');
-			$("[data-jupyter-action*='feedbackToggle']").addClass('active');
-			$("[data-jupyter-action*='allOutputsButton']").remove();
-			$(".make-ordo-solution").remove();
-			$(".ordo-user-input").remove();
-		};
-		var fMaction = {
-			icon: 'fa-check',
-			help: 'Enter feedback-only mode',
-			help_index: 'zx',
-			handler: feedbackMode
-		};
-		var fMprefix = 'feedbackToggle';
-		var fMaction_name = 'EnterFeedbackMode';
-		var fM_action_name = Jupyter.actions.register(fMaction, fMaction_name, fMprefix);
 
-	    /* Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name]) */
-	    		var eMaction = {
-			icon: 'fa-pencil',
-			help: 'Enter ordo-edit mode',
-			help_index: 'zy',
-			handler: editMode
-		};
-		var eMprefix = 'editModeToggle';
-		var eMaction_name = 'EnterEditMode';
-		var eM_action_name = Jupyter.actions.register(eMaction, eMaction_name, eMprefix);
+    /**
+     * toggles the cell mode between editing/creating solutions and giving feedback
+     */
+    var ordoEditFeedbackToggle = function() {
+        var editMode = function() {
+            $('.command_mode').removeClass('ordo_feedback_mode');
+            $('.command_mode').addClass('ordo_edit_mode');
+            $("[data-jupyter-action*='feedbackToggle']").removeClass('active');
+            $("[data-jupyter-action*='editModeToggle']").addClass('active');
+            makeOutputButton();
+            allOutputsButton();
+        };
 
-		var toggleAdmonitions = function() {
-		    var r = $("[data-jupyter-action*='toggleAdmonitions']").toggleClass('active');
-		    console.debug("toggleAdmonitions 'em!!!!");
-		    
-		    Jupyter.notebook.get_cells().
-			forEach(function (cell, idx, cells) {
-			    var elem;
-			    if (r.hasClass('active')) {
-				elem = cell.element.find("div.ordo-admonition-controls button.ordo-admonition-btn.active");
-			    } else {
-				elem = cell.element.find("div.ordo-admonition-controls :not(button.ordo-admonition-btn.active)");
-			    }
-			    
-			    if (elem.length > 0) {
-				onClickAdmonitionButton(cell, elem);
-				elem.toggleClass("active");
-			    }
-			});
-		};
+        var eMaction = {
+            icon: 'fa-pencil',
+            help: 'Enter ordo-edit mode',
+            help_index: 'zy',
+            handler: editMode
+        };
 
-	    var admAction = {
-		icon: 'fa-window-close-o',
-		help: 'Open/ close all admonitions cells',
-		help_index: 'zz',
-		handler: toggleAdmonitions
-	    };
 
-	    var admPrefix = 'toggleAdmonitions';
-	    var admAction_name = 'OpenCloseAdmonitions';
-	    var adm_action_name = Jupyter.actions.register(admAction, admAction_name, admPrefix);
-	    
-	    Jupyter.toolbar.add_buttons_group([fM_action_name,eM_action_name,adm_action_name])
+        var eMprefix = 'editModeToggle';
+        var eMaction_name = 'EnterEditMode';
+        var eM_action_name = Jupyter.actions.register(eMaction, eMaction_name, eMprefix);
 
-	    $("[data-jupyter-action*='feedbackToggle']").addClass('active');
 
-	}
+
+
+        var feedbackMode = function() {
+            $('.command_mode').removeClass('ordo_edit_mode');
+            $('.command_mode').addClass('ordo_feedback_mode');
+            $("[data-jupyter-action*='editModeToggle']").removeClass('active');
+            $("[data-jupyter-action*='feedbackToggle']").addClass('active');
+            $("[data-jupyter-action*='allOutputsButton']").remove();
+            $(".make-ordo-solution").remove();
+            $(".ordo-user-input").remove();
+        };
+
+
+        var fMaction = {
+            icon: 'fa-check',
+            help: 'Enter feedback-only mode',
+            help_index: 'zx',
+            handler: feedbackMode
+        };
+
+
+        var fMprefix = 'feedbackToggle';
+        var fMaction_name = 'EnterFeedbackMode';
+        var fM_action_name = Jupyter.actions.register(fMaction, fMaction_name, fMprefix);
+
+
+
+        var toggleAdmonitions = function() {
+            var r = $("[data-jupyter-action*='toggleAdmonitions']").toggleClass('active');
+            console.debug("toggleAdmonitions 'em!!!!");
+            
+
+            Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
+
+                if (r.hasClass('active')) {
+                    var elem = cell.element.find("div.ordo-admonition-controls button.ordo-admonition-btn.active");
+                } else {
+                    var elem = cell.element.find("div.ordo-admonition-controls :not(button.ordo-admonition-btn.active)");
+                }
+                
+                if (elem.length > 0) {
+                    onClickAdmonitionButton(cell, elem);
+                    elem.toggleClass("active");
+                }
+            });
+        };
+
+        var admAction = {
+            icon: 'fa-window-close-o',
+            help: 'Open/ close all admonitions cells',
+            help_index: 'zz',
+            handler: toggleAdmonitions
+        };
+
+        var admPrefix = 'toggleAdmonitions';
+        var admAction_name = 'OpenCloseAdmonitions';
+        var adm_action_name = Jupyter.actions.register(admAction, admAction_name, admPrefix);
+        
+        Jupyter.toolbar.add_buttons_group([fM_action_name, eM_action_name, adm_action_name]);
+
+        $("[data-jupyter-action*='feedbackToggle']").addClass('active');
+    };
+
+    
 
     var onEditSol = function(cell) {
 	dialog.modal({
