@@ -299,9 +299,9 @@ define([
     
 
     /**
-     * Sends python code to the kernel for excecution
+     * Sends python code to the kernel for excecution and returns the result
      * @param {*} python 
-     * @returns 
+     * @returns {*} The result of the excecution
      */
     var executePython = function(python) {
         console.debug("define: ", python);
