@@ -312,7 +312,7 @@ define([
 		    }
 		}}}, { silent: false });
 	})).then((result) => { console.debug("2. executePython" + result); return result; });
-    }
+    };
 
 
 
@@ -378,7 +378,7 @@ define([
      */
     var ordoFeedback = function () {
         events.on('finished_execute.CodeCell', onCodeCellExecuted);
-    }
+    };
 
     /**
      * returns the feedback div.
@@ -444,7 +444,8 @@ define([
                     "</div>"
 
         return feedback;
-    }
+    };
+
 
 	/**
 	 * tests two metadata objects for equality
@@ -469,21 +470,23 @@ define([
 			if(typeof(obj1[p]) == undefined) return false;
 		}
 		return true;
-	}
-	/** 
-	 *  Capture select cell event for the cell data
-	 *  check cell type is code
-	 *  if true:
-	 *    check the cell is the same as the formerly selected cell
-	 *    if true:
-	 *      return with no action
-	 *    if false:
-	 *      Remove the button from the formerly selected cell
-	 *      check if the cell has been run already
-	 *      if true:
-	 *        append a button for the user to click which will:
-	 *        make ordo_solution = output_area.outputs[0]
-	 */
+	};
+
+
+    /** 
+     *  Capture select cell event for the cell data
+     *  check cell type is code
+     *  if true:
+     *    check the cell is the same as the formerly selected cell
+     *    if true:
+     *      return with no action
+     *    if false:
+     *      Remove the button from the formerly selected cell
+     *      check if the cell has been run already
+     *      if true:
+     *        append a button for the user to click which will:
+     *        make ordo_solution = output_area.outputs[0]
+     */
     var makeOutputButton = function () {
 
         events.on('select.Cell', function(event, data) {
@@ -517,7 +520,7 @@ define([
                 }
             }
         });
-    }
+    };
 
     /**
      * returns the solution as a string for display purposes. this is used when the user clicks on
@@ -544,7 +547,8 @@ define([
         }
 
         return null;
-    }
+    };
+
 
     /**
      * 
@@ -603,7 +607,7 @@ define([
                 }
             }
         }); 
-    }
+    };
     
 
 
@@ -649,7 +653,7 @@ define([
         if($("[data-jupyter-action*='allOutputsButton']").length == 0) {
             Jupyter.toolbar.add_buttons_group([full_action_name]);
         }
-    }
+    };
 
 
 
