@@ -275,7 +275,9 @@ define([
     };
 
 
-
+    /**
+     * Adds ordo UI to all cells
+     */
     var initializeCells = function() {
 
         Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
