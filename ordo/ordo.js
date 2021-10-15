@@ -215,63 +215,93 @@ define([
 	}
     }
 
+
+    /**
+     * 
+     * @param {*} div 
+     * @param {*} cell 
+     * @param {*} celltoolbar 
+     */
     var createCellToolbar = function (div, cell, celltoolbar) {
 
-	var localDiv = $('<div />').addClass('ordo-celltoolbar');
-
-	/* Authoring */
-
-	if (cell.cell_type === null) {
-	    events.on('create.Cell', (event, data) => {
-		events.off(event);
-		createCellToolbar(div, cell, celltoolbar)
-	    });
-	} else {
-
-	    if (cell.cell_type === 'code') {
-		var editSolBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit solutions').click((evt) => onEditSol(cell));
-		var editSuccBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit success message').click((evt) => onEditSuccMsg(cell));
-		var editFailBtn = $('<button />').addClass('btn btn-sm btn-secondary').text('Edit failure message').click((evt) => onEditFailMsg(cell));;
-		var authGrp = $('<div/>').addClass('btn-group').
-		    attr('role', 'group').
-		    attr('aria-label', 'Buttons for authoring cell solutions');
-		authGrp.append(editSolBtn).append(editSuccBtn).append(editFailBtn);
-		localDiv.append(authGrp);
-	    }
+        var ordoDiv = $('<div />').addClass('ordo-celltoolbar');
 
 
-	/* Admonition */
-	var adm = $('<button />');
+        /* Authoring */
+        if (cell.cell_type === null) {
+            
+            events.on('create.Cell', (event, _) => {
+                events.off(event);
+                createCellToolbar(div, cell, celltoolbar);
+            });
 
-	adm.addClass('btn btn-sm btn-secondary').attr('data-toggle', 'button').attr('aria-pressed', false)
-	    .text('Make admonition');
+        } else {
 
-	if (cell.metadata.ordo !== undefined &&
-	    cell.metadata.ordo.admonition !== undefined &&
-	    cell.metadata.ordo.admonition) {
-	    adm.addClass('active').attr('aria-pressed', true);
-	}
-     
-        adm.click(() => {
-	    
-	    if (cell.metadata.ordo === undefined) {
-		cell.metadata.ordo = {};
-	    }
-	    
-	    if (cell.metadata.ordo.admonition === undefined) {
-		cell.metadata.ordo.admonition = true;
-		cell.element.addClass('ordo-admonition-on');
-	    } else {
-		delete cell.metadata.ordo.admonition;
-		cell.element.removeClass('ordo-admonition-on');
-	    }
+            if (cell.cell_type === 'code') {
+                var editSolBtn = $('<button />')
+                    .addClass('btn btn-sm btn-secondary')
+                    .text('Edit solutions')
+                    .click((evt) => onEditSol(cell));
+                
+                var editSuccBtn = $('<button />')
+                    .addClass('btn btn-sm btn-secondary')
+                    .text('Edit success message')
+                    .click((evt) => onEditSuccMsg(cell));
+                
+                var editFailBtn = $('<button />')
+                    .addClass('btn btn-sm btn-secondary')
+                    .text('Edit failure message')
+                    .click((evt) => onEditFailMsg(cell));;
+                
+                
+                var authGrp = $('<div/>')
+                    .addClass('btn-group')
+                    .attr('role', 'group')
+                    .attr('aria-label', 'Buttons for authoring cell solutions');
+                
 
-	    toggleOpenButton(cell);
-	    
-	});
+                authGrp.append(editSolBtn).append(editSuccBtn).append(editFailBtn);
+                
+                ordoDiv.append(authGrp);
+            }
 
-            $(div).append(localDiv.append(adm));
-	}
+
+
+            /* Admonition */
+            var adm = $('<button />')
+                .addClass('btn btn-sm btn-secondary')
+                .attr('data-toggle', 'button')
+                .attr('aria-pressed', false)
+                .text('Make admonition');
+
+            if (cell.metadata.ordo !== undefined &&
+                cell.metadata.ordo.admonition !== undefined &&
+                cell.metadata.ordo.admonition) {
+                adm.addClass('active').attr('aria-pressed', true);
+            }
+            
+
+            adm.click(() => {
+            
+                if (cell.metadata.ordo === undefined) {
+                    cell.metadata.ordo = {};
+                }
+                
+                if (cell.metadata.ordo.admonition === undefined) {
+                    cell.metadata.ordo.admonition = true;
+                    cell.element.addClass('ordo-admonition-on');
+                } else {
+                    delete cell.metadata.ordo.admonition;
+                    cell.element.removeClass('ordo-admonition-on');
+                }
+
+                toggleOpenButton(cell);
+                
+            });
+
+            
+            $(div).append(ordoDiv.append(adm));
+        }
     };
 
 
