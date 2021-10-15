@@ -16,8 +16,6 @@ define([
 
     console.debug("...Ordo loaded... grading capabilities initiated");
 
-    var CellToolbar = celltoolbar.CellToolbar;
-
     var defaultSuccess = "";
     var defaultFailure = "";
 
@@ -168,11 +166,11 @@ define([
             
             ordoEditFeedbackToggle();
 
-            CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
+            celltoolbar.CellToolbar.register_callback('create_tutorial.toolbar', createCellToolbar);
             
                 var preset = ['create_tutorial.toolbar'];
             
-                CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
+                celltoolbar.CellToolbar.register_preset('Create Tutorial', preset, Jupyter.notebook);
         }
 
     };
