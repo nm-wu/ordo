@@ -123,8 +123,8 @@ define([
 
     var params = {
         defaultSuccess     : "",
-    defaultFailure     : "",
-    enableModeToggle   : true
+        defaultFailure     : "",
+        enableModeToggle   : true
     };
 
 
