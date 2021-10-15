@@ -297,21 +297,27 @@ define([
 	
     };
     
-    var executePython = function(python) {
-	console.debug("define: ", python);
 
-	return (new Promise((resolve, reject) => {
-	    console.debug("1. executePython: " + python);
-	    Jupyter.notebook.kernel.execute(python, {
-		iopub: { output: (msg) => {
-		    console.debug("CALLBACK: ", msg);
-		    /* TODO: Fix for error cases, check for status == error etc. */
-		    if (msg.msg_type === 'execute_result') {
-			console.debug("CALLBACK (result): ", solutionToString(msg.content.data));
-			resolve(msg.content.data)
-		    }
-		}}}, { silent: false });
-	})).then((result) => { console.debug("2. executePython" + result); return result; });
+    /**
+     * Sends python code to the kernel for excecution
+     * @param {*} python 
+     * @returns 
+     */
+    var executePython = function(python) {
+        console.debug("define: ", python);
+
+        return (new Promise((resolve, reject) => {
+            console.debug("1. executePython: " + python);
+            Jupyter.notebook.kernel.execute(python, {
+            iopub: { output: (msg) => {
+                console.debug("CALLBACK: ", msg);
+                /* TODO: Fix for error cases, check for status == error etc. */
+                if (msg.msg_type === 'execute_result') {
+                console.debug("CALLBACK (result): ", solutionToString(msg.content.data));
+                resolve(msg.content.data)
+                }
+            }}}, { silent: false });
+        })).then((result) => { console.debug("2. executePython" + result); return result; });
     };
 
 
