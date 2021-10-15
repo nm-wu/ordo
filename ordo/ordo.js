@@ -799,28 +799,34 @@ define([
         })
     };
 
+
+
+    /**
+     * Invokes the edit fail message model for a given cell
+     * @param {object} A jupyter notebook cell object
+     */
     var onEditFailMsg = function(cell) {
-	dialog.modal({
-	    'title': 'Edit Failure Message',
-	    'body': makeMessageInputArea(cell),
-	    'buttons': {
-		'Cancel': {},
-		'Save New Message': {
-		    'id': 'save-failure-msg-btn',
-		    'class': 'btn-primary',
-		    'click': function() {
-			if($('#styling').val() == "bold") {
-			    sol = "<b>" + $('#message_text_area').val() + "</b>"
-			} else {
-			    sol = $('#message_text_area').val() 
-			}
-			cell.metadata.ordo_failure = sol
-		    }
-		},
-	    },
-	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
-	    'notebook': Jupyter.notebook
-	})
+    dialog.modal({
+        'title': 'Edit Failure Message',
+        'body': makeMessageInputArea(cell),
+        'buttons': {
+        'Cancel': {},
+        'Save New Message': {
+            'id': 'save-failure-msg-btn',
+            'class': 'btn-primary',
+            'click': function() {
+            if($('#styling').val() == "bold") {
+                sol = "<b>" + $('#message_text_area').val() + "</b>"
+            } else {
+                sol = $('#message_text_area').val() 
+            }
+            cell.metadata.ordo_failure = sol
+            }
+        },
+        },
+        'keyboard_manager': Jupyter.notebook.keyboard_manager,
+        'notebook': Jupyter.notebook
+    })
     }
     
     
