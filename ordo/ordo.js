@@ -128,7 +128,9 @@ define([
     };
 
 
-    
+    /**
+     * Does all the init work of ordo
+     */
     var initialize = function () {
 
         $('<link/>')
