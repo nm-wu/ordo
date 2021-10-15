@@ -171,7 +171,11 @@ define([
     };
 
 
-
+    /**
+     * Toggels the admonition div between the states open and close
+     * @param {object} cell Jupyter notebooks' cell object
+     * @param {object} btn A JQuery object that represents a HTML button
+     */
     var onClickAdmonitionButton = function(cell, btn) {
 
         if (btn.hasClass('active')) {
@@ -181,7 +185,7 @@ define([
             btn.text('Open');
         } else {
             console.debug("Open ...");
-            
+
             cell.element.find('div.ordo-admonition-controls').nextAll().show();
             btn.text('Close');
         }
