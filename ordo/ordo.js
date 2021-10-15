@@ -612,10 +612,9 @@ define([
      */
     var allOutputsButton = function() {
 
-        var myFunc = function () {
-            cells = Jupyter.notebook.get_cells();
+        var setAllCellOutputsAsCellSolutions = function () {
 
-            for(i=0; i < cells.length; i++) {
+            for(i=0; i < Jupyter.notebook.get_cells().length; i++) {
 
                 if(cells[i].cell_type == "code") {
                     
@@ -624,7 +623,7 @@ define([
                         if(cells[i].output_area.outputs.length > 0) {
 
                             if(cells[i].output_area.outputs[0].output_type == "execute_result") {
-                                cells[i].metadata.ordo_solution = cells[i].output_area.outputs[0].data
+                                cells[i].metadata.ordo_solution = cells[i].output_area.outputs[0].data;
                                 console.debug("updated metadata");
                             }
                         }
@@ -638,7 +637,7 @@ define([
             icon: 'fa-lightbulb-o',
             help: 'Make all outputs solutions',
             help_index: 'zz',
-            handler: myFunc
+            handler: setAllCellOutputsAsCellSolutions
         };
         
 
