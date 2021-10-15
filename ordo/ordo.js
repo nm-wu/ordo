@@ -860,15 +860,16 @@ define([
         });
     };
     
-	/**
-	 * html for the feedback buttons on a cell
-	 */
-	var ordoEditButtons = 
-			"<div class='btn-group col-md-offset-1 ordo-user-input' role='group' aria-label='author input values'>" +
-			"<button type='button' title='add solution' class='btn btn-default fa fa-plus ordo-add-solution' data-field='ordo_solution'> Solution </button>" +
-			"<button type='button' title='add success message' class='btn btn-success fa fa-thumbs-o-up ordo-add-success-msg' data-field='ordo_success'> Message </button>" +
-			"<button type='button' title='add failure message' class='btn btn-danger fa fa-thumbs-down ordo-add-failure-msg' data-field='ordo_failure'> Message </button>" +
-		"</div>";
+
+    /**
+     * html for the feedback buttons on a cell
+     */
+    var ordoEditButtons = 
+        "<div class='btn-group col-md-offset-1 ordo-user-input' role='group' aria-label='author input values'>" +
+            "<button type='button' title='add solution' class='btn btn-default fa fa-plus ordo-add-solution' data-field='ordo_solution'> Solution </button>" +
+            "<button type='button' title='add success message' class='btn btn-success fa fa-thumbs-o-up ordo-add-success-msg' data-field='ordo_success'> Message </button>" +
+            "<button type='button' title='add failure message' class='btn btn-danger fa fa-thumbs-down ordo-add-failure-msg' data-field='ordo_failure'> Message </button>" +
+        "</div>";
 	
 	/**
 	 * html for the input box to create a feedback message
