@@ -217,7 +217,7 @@ define([
 
 
     /**
-     * 
+     * Creates and adds the ordo cell toolbar to the given cell
      * @param {*} div 
      * @param {*} cell 
      * @param {*} celltoolbar 
