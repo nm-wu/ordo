@@ -287,16 +287,15 @@ define([
      * reads configuration properties containing default feedback responses for the plugin
      */
     var readConfig = function() {
-	
-	$.extend(true, params, Jupyter.notebook.config.data.ordo);
-	console.debug(params);
 
-	/* FIXME: for the time being, set old variables */
-	defaultFailure = params['defaultFailure'];
-	defaultSuccess = params['defaultSuccess'];
-	
+        $.extend(true, params, Jupyter.notebook.config.data.ordo);
+        console.debug(params);
+
+        /* FIXME: for the time being, set old variables */
+        defaultFailure = params['defaultFailure'];
+        defaultSuccess = params['defaultSuccess'];
     };
-    
+
 
     /**
      * Sends python code to the kernel for excecution and returns the result
