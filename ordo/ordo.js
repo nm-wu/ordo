@@ -605,8 +605,10 @@ define([
         }); 
     }
     
+
+
     /**
-	 * sets the solution for the current cell to be the solution for all cells in the notebook
+	 * sets the solution of the current cell to be the solution for all cells in the notebook
 	 */
 	var allOutputsButton = function() {
 		var myFunc = function () {
