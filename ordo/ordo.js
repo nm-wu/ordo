@@ -184,7 +184,10 @@ define([
 
 
 
-
+    /**
+     * Creates and appends the ordo div with tits button to the given cell
+     * @param {object} cell Jupyter notebooks' cell object
+     */
     var toggleOpenButton = function(cell) {
         console.debug("toggleOpenButton");
         console.debug(cell);
