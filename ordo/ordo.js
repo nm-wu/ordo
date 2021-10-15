@@ -177,6 +177,7 @@ define([
      * @param {object} btn A JQuery object that represents a HTML button
      */
     var onClickAdmonitionButton = function(cell, btn) {
+        console.debug(btn);
 
         if (btn.hasClass('active')) {
             console.debug("Close ...");
@@ -189,8 +190,6 @@ define([
             cell.element.find('div.ordo-admonition-controls').nextAll().show();
             btn.text('Close');
         }
-        
-        console.debug(btn);
     };
 
 
