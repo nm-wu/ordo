@@ -608,7 +608,7 @@ define([
 
 
     /**
-     * Sets the solution of the current cell to be the solution for all cells in the notebook
+     * Sets the solution of each cell to the output of the cell.
      */
     var allOutputsButton = function() {
 
