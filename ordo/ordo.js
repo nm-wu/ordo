@@ -170,16 +170,23 @@ define([
 
     };
 
+
+
     var onClickAdmonitionButton = function(cell, btn) {
-	if (btn.hasClass('active')) {
-	    console.debug("Close ...");
-	    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
-	    btn.text('Open');
-	} else {
-	    cell.element.find('div.ordo-admonition-controls').nextAll().show()
-	    btn.text('Close');
-	}
-	console.debug(btn);
+
+        if (btn.hasClass('active')) {
+            console.debug("Close ...");
+            
+            cell.element.find('div.ordo-admonition-controls').nextAll().hide();
+            btn.text('Open');
+        } else {
+            console.debug("Open ...");
+            
+            cell.element.find('div.ordo-admonition-controls').nextAll().show();
+            btn.text('Close');
+        }
+        
+        console.debug(btn);
     };
 
 
