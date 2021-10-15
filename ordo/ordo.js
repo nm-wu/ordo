@@ -283,8 +283,10 @@ define([
 	});
     }
 
+    
     /**
-     * reads configuration properties containing default feedback responses for the plugin
+     * reads and sets configuration properties, which contains the default messages
+     * for failure and success
      */
     var readConfig = function() {
 
