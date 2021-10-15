@@ -922,72 +922,73 @@ define([
 
 
 
-	/**
-	 * html for the input form to create a solution
-	 */
+    /**
+     * Assembles HTML for the create a solution input form and returns it as a string
+     * @returns {String} inputArea The create a solution input form HTML as a string
+     */
     var makeSolutionInputArea = function(cell) {
 
-	solution = cell.metadata.ordo_solution;
-	console.debug("makeSolutionInputArea", solution);
-	
-		var output_types = [
-			'text/plain',
-			'text/html',
-			'text/markdown',
-			'text/latex',
-			'image/svg+xml',
-			'image/png',
-			'image/jpeg',
-			'application/javascript',
-			'application/pdf',
-			'python'
-		]
-		
-		$sel = $('<select />', {
-			'class': "form-control solution_type",
-			'id': "output_type",
-			'title': 'Select the output type'
-		})
-	    
-	$.each(output_types, function(index, type) {
-	    opt = $("<option>" + type + "</option>");
-	    if (solution !== undefined && solution[type] !== undefined) {
-		console.log(type, solution[type]);
-		opt.attr('selected', true);
-	    }
-	    $sel.append(opt);
-	})
+    solution = cell.metadata.ordo_solution;
+    console.debug("makeSolutionInputArea", solution);
 
-		var inputArea = $('<div />', {
-			'title': 'Solution Input Area'
-		}).append(
-			$('<form />', {
-				'class': "form-inline"
-			}).append($sel).append(
-				$('<textarea />', {
-					'class': 'form-control solution_text_area',
-					'id': 'solution_text_area',
-					'rows': '2',
-					'style': 'width:65%',
-					'title': 'Input text here!'
-				})).append(
-				$('<button />', {
-					'class': 'btn btn-default',
-					'title': 'Add another field'
-				}).append(
-					$('<span />', {
-						'class': 'fa fa-plus'
-					})
-				)
-			)
-		)
+        var output_types = [
+            'text/plain',
+            'text/html',
+            'text/markdown',
+            'text/latex',
+            'image/svg+xml',
+            'image/png',
+            'image/jpeg',
+            'application/javascript',
+            'application/pdf',
+            'python'
+        ]
+        
+        $sel = $('<select />', {
+            'class': "form-control solution_type",
+            'id': "output_type",
+            'title': 'Select the output type'
+        })
+        
+    $.each(output_types, function(index, type) {
+        opt = $("<option>" + type + "</option>");
+        if (solution !== undefined && solution[type] !== undefined) {
+        console.log(type, solution[type]);
+        opt.attr('selected', true);
+        }
+        $sel.append(opt);
+    })
 
-	    if (solution !== undefined) {
-	        $('#solution_text_area', inputArea).val(solutionToString(solution));
-	    }
-	    
-	    return inputArea;
-	}
+        var inputArea = $('<div />', {
+            'title': 'Solution Input Area'
+        }).append(
+            $('<form />', {
+                'class': "form-inline"
+            }).append($sel).append(
+                $('<textarea />', {
+                    'class': 'form-control solution_text_area',
+                    'id': 'solution_text_area',
+                    'rows': '2',
+                    'style': 'width:65%',
+                    'title': 'Input text here!'
+                })).append(
+                $('<button />', {
+                    'class': 'btn btn-default',
+                    'title': 'Add another field'
+                }).append(
+                    $('<span />', {
+                        'class': 'fa fa-plus'
+                    })
+                )
+            )
+        )
+
+        if (solution !== undefined) {
+            $('#solution_text_area', inputArea).val(solutionToString(solution));
+        }
+        
+        return inputArea;
+    }
 
     var ordo_exts = function() {
 	return Jupyter.notebook.config.loaded.then(readConfig).then(initialize).catch(function on_error (reason) {
