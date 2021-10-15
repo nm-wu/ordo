@@ -565,40 +565,38 @@ define([
 
             $(".show-ordo-solution").remove();
 
-            currCell = data.cell;
-            if(currCell.cell_type === "code" && currCell.metadata && currCell.metadata.ordo_solution) {
-                
-                if(currCell.output_area.outputs.length > 0) {
-                    console.debug("Show solution button");
-                    console.debug(currCell.output_area.outputs[0].output_type);
 
-                    if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
+            if(data.cell.cell_type === "code" && data.cell.metadata && data.cell.metadata.ordo_solution) {
+                
+                if(data.cell.output_area.outputs.length > 0) {
+                    console.debug("Show solution button");
+                    console.debug(data.cell.output_area.outputs[0].output_type);
+
+                    if(["execute_result", "stream"].includes(data.cell.output_area.outputs[0].output_type)) {
                         $(".selected .input")
                             .after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
                         
                         $(".show-ordo-solution").one("click", function() {
-                            //currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-                            // solution = solutionToString(currCell.metadata.ordo_solution)
-                            console.debug(currCell.metadata.ordo_solution);
+                            console.debug(data.cell.metadata.ordo_solution);
 
                             /* TODO: 
-                                * - Improve retrieval here based on a parametric solutionToString 
-                                * - Make sure that we escape text/plain content here, as feedback requires markup!
-                                */
+                            * - Improve retrieval here based on a parametric solutionToString 
+                            * - Make sure that we escape text/plain content here, as feedback requires markup!
+                            */
                             
-                            solution = currCell.metadata.ordo_solution['text/plain'];
+                            solution = data.cell.metadata.ordo_solution['text/plain'];
                             console.debug("Current solution => " + solution);
                             
                             feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
                                         "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
                                         "<stron> Expected solution is: </strong>" + solution  + " </div>";
                             
-                                currCell.output_area.append_output({
-                                    "output_type" : "display_data",
-                                    "data" : {
-                                        "text/html": feedback
-                                    },
-                                    "metadata" : {}
+                            currCell.output_area.append_output({
+                                "output_type" : "display_data",
+                                "data" : {
+                                    "text/html": feedback
+                                },
+                                "metadata" : {}
                             });
                         });
                     }
