@@ -204,47 +204,12 @@ define([
      * @param {object} cell Jupyter notebooks' cell object
      */
     var toggleOpenButton = function(cell) {
-<<<<<<< HEAD
         console.debug("toggleOpenButton");
         console.debug(cell);
         
         if (cell.metadata.ordo !== undefined &&
             cell.metadata.ordo.admonition !== undefined &&
             cell.metadata.ordo.admonition) {
-=======
-	console.debug("toggleOpenButton");
-	console.debug(cell, cell.metadata /*, cell.metadata.ordo.admonition, cell.metadata.ordo.admonition*/);
-	if (cell.metadata.ordo !== undefined &&
-	    cell.metadata.ordo.admonition !== undefined &&
-	    cell.metadata.ordo.admonition) {
-	    var localDiv = $('<div />').addClass("text-center").addClass('ordo-admonition-controls');
-            var btn = $('<button />');
-	    btn.addClass('btn btn-sm btn-primary ordo-admonition-btn').attr('data-toggle', 'button');
-
-	    /* Make sure that the magic happens when the DOM sub-structure
-	       of a given admonition cell has been fully loaded */
-	    
-	    cell.element.ready(function() {
-		if (params.enableModeToggle) {
-		    btn.addClass('active').attr('aria-pressed', true);
-		    cell.element.find('div.ordo-admonition-controls').nextAll().show();
-		    btn.text('Close');
-		} else {
-		    btn.attr('aria-pressed', false);
-		    cell.element.find('div.ordo-admonition-controls').nextAll().hide();
-		    btn.text('Open');
-		}
-	    });
-
-	    btn.click(function() { onClickAdmonitionButton(cell,$(this)) });
-	    console.debug("PREPENDING", localDiv);
-	    cell.element.prepend(localDiv.append(btn));
-	} else {
-	    console.debug("NOT PREPENDING");
-	    cell.element.find('div.ordo-admonition-controls').remove();
-	}
-    }
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
 
             var ordoDiv = $('<div />')
                 .addClass("text-center")
@@ -375,7 +340,6 @@ define([
      * Adds ordo UI to all cells
      */
     var initializeCells = function() {
-<<<<<<< HEAD
 
         Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
             console.debug("initializeCells");
@@ -385,25 +349,6 @@ define([
         });
     };
 
-=======
-	console.log(Jupyter.notebook.get_cells());
-	Jupyter.notebook.get_cells().forEach(function (cell, idx, cells) {
-	    console.debug("initializeCells");
-	    console.debug(cell.metadata);
-	    toggleOpenButton(cell);
-	});
-
-	/* handle copy/ cut & paste of cells */
-	events.on('create.Cell', (event, data) => {
-	    var cell = data.cell;
-	    /* Metadata might not be available upon create.Cell, so we
-	     * have to defer ... */
-	    events.one('set_dirty.Notebook', (event, data) => {
-		toggleOpenButton(cell);
-	    });
-	});
-    }
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
 
     /**
      * reads and sets configuration properties, which contains the default messages
@@ -501,7 +446,7 @@ define([
      * @param {object} obj an objectwhich provides access to the cell via property cell
      */
     var onCodeCellExecuted = async function(evt, obj) {
-<<<<<<< HEAD
+
         outputs = obj.cell.output_area.outputs;
         solution = obj.cell.metadata.ordo_solution;
         
@@ -555,87 +500,10 @@ define([
      * registers function onCodeCellExecuted to event finished_execute.CodeCell. This function is hence
      * called after the current code cell is executed
      */
-=======
-	
-	var solution = obj.cell.metadata.ordo_solution;
-	var feedback;
-	if (solution !== undefined) {
-	    var res;
-	    var output = getOutput(obj);
-
-	    console.debug("OUTPUT", output);
-
-	    if (solution['python'] !== undefined) {
-		console.debug("executePython AWAIT ", solution);
-		
-		res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
-		obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
-		
-	    } else {
-		res = solution;
-	    }
-	    
-	    if (output === undefined) {
-		/* We have a solution, but a required output is missing */
-		var channel = obj.cell.metadata.ordo_channel || "result";
-		console.debug("[ordo] missing output, but required", solution)
-		feedback = "<div class='alert alert-danger alert-dismissible ordo_feedback' role='alert'> " + 
-		    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-		    "<strong>Oh no!</strong> There is no output available on <code>" + channel + "</code>" + 
-		    "</div>"
-	    } else {
-		
-		console.debug("ordo feedback ?", obj.cell.element.find('.output_area'));
-
-		feedback = ordoFeedbackMessage(equals(res, output),
-					       obj.cell.metadata.ordo_success, 
-					       obj.cell.metadata.ordo_failure);
-	
-		
-		/* if (obj.cell.metadata.ordo_verify === undefined) {
-		    var res;
-		    if (solution['python'] !== undefined) {
-			console.debug("executePython AWAIT ", solution);
-			
-			res = await executePython(solution["python"]).then((result) => { console.debug("3. executePython", result); return result })
-			obj.cell.metadata.ordo_solution = {...obj.cell.metadata.ordo_solution, ...res};
-			
-			
-		    } else {
-			res = solution;
-		    }
-		    console.debug("executePython SOL xxxxx: ", res, output);
-		    feedback = ordoFeedbackMessage(equals(res, output),
-						   obj.cell.metadata.ordo_success, 
-						   obj.cell.metadata.ordo_failure);
-		} else {
-		    if(solution['python'] !== undefined) {
-			console.debug("executePython AWAIT ",  solution);
-			
-			solution = await executePython(solution["python"]).then((result) => console.debug("3. executePython2" + result))
-		    } 
-		    
-		    console.debug("executePython SOL 2 ", solution);
-		    feedback = obj.cell.metadata.ordo_verify(output, 
-							     obj.cell.metadata.ordo_success, 
-							     obj.cell.metadata.ordo_failure);
-		}
-		*/
-	    }
-	    obj.cell.output_area.append_output({
-		"output_type" : "display_data",
-		"data" : {
-		    "text/html": feedback
-		},
-		"metadata" : {}
-	    });
-	}
-    };
-    
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
     var ordoFeedback = function () {
         events.on('finished_execute.CodeCell', onCodeCellExecuted);
     };
+
 
     /**
      * returns the feedback div.
@@ -730,7 +598,6 @@ define([
 	};
 
 
-<<<<<<< HEAD
     /** 
      *  Capture select cell event for the cell data
      *  check cell type is code
@@ -866,60 +733,6 @@ define([
             }
         }); 
     };
-=======
-	/**
-	 * 
-	 * creates a button to show the current solution to the user
-	 */
-	var showSolutionButton = function () {
-		var currCell = undefined;
-		events.on('select.Cell', function(event, data) {
-			newCell = data.cell;
-			if(newCell == currCell){
-				return;
-			} else if($('.ordo_feedback_mode').length == 0) {
-				return;
-			} else {
-				$(".show-ordo-solution").remove();
-				currCell = newCell;
-				if(currCell.cell_type === "code" && currCell.metadata && currCell.metadata.ordo_solution) {
-				    if(currCell.output_area.outputs.length > 0) {
-					console.debug("Show solution button");
-					console.debug(currCell.output_area.outputs[0].output_type);
-					if(["execute_result", "stream"].includes(currCell.output_area.outputs[0].output_type)) {
-					    $(".selected .input")
-						.after("<div style='text-align: right;'><button type='button' class='btn fa fa-eye show-ordo-solution'></button></div>");
-					    $(".show-ordo-solution").one("click", function() {
-						//currCell.metadata.ordo_solution = currCell.output_area.outputs[0].data;
-						// solution = solutionToString(currCell.metadata.ordo_solution)
-						console.debug(currCell.metadata.ordo_solution);
-
-						/* TODO: 
-						  * - Improve retrieval here based on a parametric solutionToString 
-						  * - Make sure that we escape text/plain content here, as feedback requires markup!
-						  */
-						
-						solution = currCell.metadata.ordo_solution['text/plain']
-						var channel = currCell.metadata.ordo_channel || "result";
-						console.debug("Current solution => " + solution);
-						feedback = "<div class='alert alert-info alert-dismissible show-ordo-solution' role='alert'>" + 
-						    "<button type='button' class='close' data-dismiss='alert'>&times;</button> " + 
-						    "<stron> Expected solution is (on <code>"+ channel + "</code>): </strong><pre>" + solution  + "</pre></div>"
-						currCell.output_area.append_output({
-						    "output_type" : "display_data",
-						    "data" : {
-							"text/html": feedback
-						    },
-						    "metadata" : {}
-						});
-					    });
-					}
-					}
-				}
-			}
-		}); 
-	}
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
     
 
 
@@ -1064,7 +877,6 @@ define([
      * @param {object} A jupyter notebook cell object
      */
     var onEditSol = function(cell) {
-<<<<<<< HEAD
         dialog.modal({
             'title': 'Edit Solutions',
             'body': makeSolutionInputArea(cell),
@@ -1083,27 +895,6 @@ define([
             'keyboard_manager': Jupyter.notebook.keyboard_manager,
             'notebook': Jupyter.notebook
         });
-=======
-	dialog.modal({
-	    'title': 'Edit Solutions',
-	    'body': makeSolutionInputArea(cell),
-	    'buttons': {
-		'Cancel': {},
-		'Save New Solution': {
-		    'id': 'save-solution-btn',
-		    'class': 'btn-primary',
-		    'click': function() {
-			sol = {}
-			sol[$('#output_type').val()] = $('#solution_text_area').val()
-			cell.metadata.ordo_solution = sol
-			cell.metadata.ordo_channel = $('input[name="channelOptions"]:checked').val();
-		    }
-		},
-	    },
-	    'keyboard_manager': Jupyter.notebook.keyboard_manager,
-	    'notebook': Jupyter.notebook
-	})
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
     };
 
 
@@ -1198,7 +989,6 @@ define([
         });
     };
     
-<<<<<<< HEAD
 
     /**
      * html for the feedback buttons on a cell
@@ -1340,156 +1130,6 @@ define([
             .then(initialize)
             .catch(function on_error(reason) {
                 console.error('Error:', reason);
-=======
-	/**
-	 * html for the feedback buttons on a cell
-	 */
-	var ordoEditButtons = 
-			"<div class='btn-group col-md-offset-1 ordo-user-input' role='group' aria-label='author input values'>" +
-			"<button type='button' title='add solution' class='btn btn-default fa fa-plus ordo-add-solution' data-field='ordo_solution'> Solution </button>" +
-			"<button type='button' title='add success message' class='btn btn-success fa fa-thumbs-o-up ordo-add-success-msg' data-field='ordo_success'> Message </button>" +
-			"<button type='button' title='add failure message' class='btn btn-danger fa fa-thumbs-down ordo-add-failure-msg' data-field='ordo_failure'> Message </button>" +
-		"</div>";
-	
-	/**
-	 * html for the input box to create a feedback message
-	 */
-	var makeMessageInputArea = function() {
-		var styles= [
-		    'bold',
-		    'plain text',
-		    'html'
-		]
-	    
-	    $sel = $('<select />', {
-		'class': "form-control",
-		'id': "styling",
-		'title': 'Select the styling for the following text'
-	    })
-	    $.each(styles, function(index, type) {
-		$sel.append("<option>" + type + "</option>")
-	    })
-	    
-	    var inputArea = $('<div />', {
-		'class': 'inputArea'
-	    }).append(
-		$('<div />', {
-		    'title': 'Message Input Area'
-		}).append(
-		    $('<form />', {
-			'class': "form-inline"
-		    }).append($sel)
-			.append(
-			    $('<textarea />', {
-				'class': 'form-control',
-				'id': 'message_text_area',
-				'rows': '2',
-				'style': 'width:70%',
-				'title': 'Input text here!'
-			    }))
-			.append(
-			    $('<button />', {
-				'class': 'btn btn-default add-field',
-				'title': 'Add another field'
-			    }).append(
-				$('<span />', {
-				    'class': 'fa fa-plus'
-				})
-			    )
-			)
-			.append($('<p />', {
-			    'class': 'form-text text-muted',
-			    'text': 'When html is selected, users may format their message using html as desired.'
-			}))
-		)
-	    )
-	    return inputArea;
-	}
-    
-	/**
-	 * html for the input form to create a solution
-	 */
-    var makeSolutionInputArea = function(cell) {
-
-	solution = cell.metadata.ordo_solution;
-	channel = cell.metadata.ordo_channel;
-	console.debug("makeSolutionInputArea", solution, channel);
-	
-		var output_types = [
-			'text/plain',
-			'text/html',
-			'text/markdown',
-			'text/latex',
-			'image/svg+xml',
-			'image/png',
-			'image/jpeg',
-			'application/javascript',
-			'application/pdf',
-			'python'
-		]
-		
-		$sel = $('<select />', {
-			'class': "form-control solution_type",
-			'id': "output_type",
-			'title': 'Select the output type'
-		})
-	    
-	$.each(output_types, function(index, type) {
-	    opt = $("<option>" + type + "</option>");
-	    if (solution !== undefined && solution[type] !== undefined) {
-		console.log(type, solution[type]);
-		opt.attr('selected', true);
-	    }
-	    $sel.append(opt);
-	})
-
-	var inputArea = $('<div />', {
-	    'title': 'Solution Input Area'
-	}).append(
-	    $('<form />', {
-		'class': "form-inline"
-	    }).append($sel)
-		.append('<div class="form-check">' +
-			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio1" value="result" checked>' +
-			'<label class="form-check-label" for="inlineRadio1">result</label>' +
-			'</div>' +
-			'<div class="form-check">' +
-			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio2" value="stdout">'+
-			'<label class="form-check-label" for="inlineRadio2">stdout</label>'+
-			'</div>'+
-			'<div class="form-check">'+
-			'<input class="form-check-input" type="radio" name="channelOptions" id="inlineRadio3" value="stderr">' +
-			'<label class="form-check-label" for="inlineRadio3">stderr</label>'+
-			'</div>')
-		.append($('<textarea />', {
-		    'class': 'form-control solution_text_area',
-		    'id': 'solution_text_area',
-		    'rows': '2',
-		    'style': 'width:65%',
-		    'title': 'Input text here!'
-		})).append(
-		    $('<span />', {
-			'class': 'fa fa-plus'
-		    })
-		)
-	)
-	
-	if (solution !== undefined) {
-	    $('#solution_text_area', inputArea).val(solutionToString(solution));
-	}
-	
-	if (channel !== undefined) {
-	    $('input[name="channelOptions"]:checked', inputArea).prop('checked', false);
-	    $('input[name="channelOptions"][value="' + channel + '"]', inputArea).prop('checked', true);
-	}
-	
-	return inputArea;
-    }
-       
-       var ordo_exts = function() {
-	return Jupyter.notebook.config.loaded.then(readConfig).then(initialize).catch(function on_error (reason) {
-            console.error('Error:', reason);
->>>>>>> 0c1a4b94feb516d3f1f0a5e4f8cda3e37fe3e17f
         });
     };
 
