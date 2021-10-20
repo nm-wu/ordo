@@ -177,7 +177,7 @@ define([
 
 
     /**
-     * Toggels the admonition div between the states open and close
+     * Toggles the admonition div between the states open and close
      * @param {object} cell Jupyter notebooks' cell object
      * @param {object} btn A JQuery object that represents a HTML button
      */
